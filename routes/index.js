@@ -19,12 +19,12 @@ router.get('/login',jsonParser,(req,res)=>{
     expiresIn: 60*60*1  // 1小时过期
   });
   res.json({status:1,mess:'ok',token:token,user_name:req.body.name})
-
 });
+
 //每次切换都去调用此接口 用来判断token是否失效 或者过期
 router.get('/checkUser',jsonParser,(req,res)=>{
   // let token = req.get("Authorization"); // 从Authorization中获取token
-  var token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoi6ZmI6aKWIiwidGVzdCI6IiAgdmFyIHRva2VuID0gZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnVZVzFsSWpvaTZabUk2YUtXSWl3aWRHVnpkQ0k2TVRJek1USXpMQ0pwWVhRaU9qRTFOalk0TURrMU9ESXNJbVY0Y0NJNk1UVTJOamd4TXpFNE1uMC5ZaGdiNWFUS1pYVlVHc2E4RUo0WlpISWhfM0lEZHVMOWk3NE9zczRHbXNjIiwiaWF0IjoxNTY2ODEwNDg0LCJleHAiOjE1NjY4MTA1NDR9.McBAjxkJi6Z0w18jstQyJG7uf1j65JqOUu4JgydgzJ4'
+  var token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoi6ZmI6aKWIiwidGVzdCI6IiAgdmFyIHRva2VuID0gZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnVZVzFsSWpvaTZabUk2YUtXSWl3aWRHVnpkQ0k2TVRJek1USXpMQ0pwWVhRaU9qRTFOalk0TURrMU9ESXNJbVY0Y0NJNk1UVTJOamd4TXpFNE1uMC5ZaGdiNWFUS1pYVlVHc2E4RUo0WlpISWhfM0lEZHVMOWk3NE9zczRHbXNjIiwiaWF0IjoxNTY2OTY0MTA1LCJleHAiOjE1NjY5Njc3MDV9.Inez-yv3AwGYGBgvAUQ5Qby-NoMnI0zacZvApuOXkaA'
   let secretOrPrivateKey="jwt"; // 这是加密的key（密钥）
   jwt.verify(token, secretOrPrivateKey, (err, decode)=> {
     if (err) {  //  时间失效的时候 || 伪造的token

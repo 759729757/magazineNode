@@ -6,8 +6,10 @@ var mongoose = require('mongoose');
 var multer = require('multer');
 
 require('../models/user/user');
+require('../models/magazine/magazine');
 
 var User = mongoose.model('user');
+var Magazine = mongoose.model('magazine');
 
 let jsonParser = bodyParser.json();
 
@@ -47,11 +49,11 @@ router.get('/*',jsonParser,(req,res)=>{
     }
   })
 });
-
-var urlProducts = './public/images/studentProducts/';
+//-----------------------------上传内容图片部分
+var urlProducts = './public/images/magazines/';
 var storageProductions = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, urlProducts);    // 保存的路径，备注：需要自己创建
+    cb(null, urlProducts + req.magazineNum + '/');    // 保存的路径，备注：需要自己创建
   },
   filename: function (req, file, cb) {
     // 将保存文件名设置为 学号 + 时间戳，比如 学生学号-1478521468943
@@ -71,7 +73,18 @@ var storageProductions = multer.diskStorage({
   }
 });
 var uploadProductions = multer({ storage:storageProductions });
-//上传图片
+//--------------上传图片
+router.post('/magazineImg',function (req, res, next) {
+  if(!req.magazineNum){//上传图片必须带有参数magazineNum 否则不予上传
+    res.jsonp({
+      status:'40001',
+      mess:'lack magazine id'
+    });
+    return false;
+  }else {
+    next();
+  }
+});
 router.post('/magazineImg', uploadProductions.single('fileName'), function (req, res, next) {
   //接收并保存图片
   next();
@@ -79,16 +92,15 @@ router.post('/magazineImg', uploadProductions.single('fileName'), function (req,
 router.post('/magazineImg', function (req, res, next) {
   var file = req.file,body = req.body,productions= body;
   if(file)productions.fileName = file.filename;
-  Student.findOneAndUpdate(
-      {_id:body.user},
-      {$push:{productions : productions}},//添加作品集图片名称
-      function (err, doc) {
-        res.jsonp({
-          errmsg:1
-        })
-      }
-  )
+  res.jsonp({
+    status:1,
+    mess:'ok',
+    data:productions  //返回上传后的文件名
+  });
 });
+//-----------------------------上传内容图片部分end
+
+
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
