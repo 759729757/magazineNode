@@ -100,6 +100,27 @@ router.post('/magazineImg', function (req, res, next) {
 });
 //-----------------------------上传内容图片部分end
 
+//分页获取当前杂志，包括筛选
+router.get('/getMagazine',function (req, res, next) {
+  var query = req.query;
+  var page = query.page || 1,
+      limit = query.limit || 10;
+
+  delete query['page'];
+  delete query['limit'];
+
+  Magazine.find(query)
+      .sort({_id:-1})
+      .skip(page*limit)
+      .limit(limit)
+      .exec(function (err, data) {
+        if(err)next(err);
+        res.jsonp({
+          status:1,mess:'ok',
+          data:data
+        })
+      })
+});
 
 
 /* GET users listing. */

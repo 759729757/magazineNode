@@ -8,6 +8,7 @@ var magazineSchema = new mongoose.Schema({
     subTitle:String,//副标题
     describe:String,//描述
     headImg:String,//封面图片
+    type:String,//类型
     subHeadImg:[String],//详情页的封面图，可以多张
     magazine:[String],//内容图片链接，多张
     sold:Number,//销售数量
