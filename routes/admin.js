@@ -7,7 +7,11 @@ var multer = require('multer');
 
 require('../models/user/user');
 require('../models/magazine/magazine');
+require('../models/tradeRecord/record');
+require('../models/admin/admin');
 
+var Admin = mongoose.model('admin');
+var Record = mongoose.model('record');
 var User = mongoose.model('user');
 var Magazine = mongoose.model('magazine');
 
@@ -18,7 +22,7 @@ let jsonParser = bodyParser.json();
 router.post('/login',jsonParser,(req,res)=>{
   let name = req.body.name;
   let pass = req.body.pass;
-  User.find({name:name}).exec((err,data)=>{
+  Admin.find({name:name}).exec((err,data)=>{
     if (err) throw err;
     if (data.length!=0){
       let content ={name:req.body.name}; // 要生成token的主题信息
@@ -49,7 +53,7 @@ router.get('/*',jsonParser,(req,res)=>{
     }
   })
 });
-//-----------------------------上传内容图片部分
+//-----------------------------上传图片部分
 var urlProducts = './public/images/magazines/';
 var storageProductions = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -121,11 +125,49 @@ router.get('/getMagazine',function (req, res, next) {
         })
       })
 });
+//分页获取 用户信息
+router.get('/getUser',function (req, res, next) {
+  var query = req.query;
+  var page = query.page || 1,
+      limit = query.limit || 10;
 
+  delete query['page'];
+  delete query['limit'];
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+  User.find(query)
+      .sort({_id:-1})
+      .skip(page*limit)
+      .limit(limit)
+      .exec(function (err, data) {
+        if(err)next(err);
+        res.jsonp({
+          status:1,mess:'ok',
+          data:data
+        })
+      })
 });
+//分页获取 交易记录
+router.get('/getRecord',function (req, res, next) {
+  var query = req.query;
+  var page = query.page || 1,
+      limit = query.limit || 10;
+
+  delete query['page'];
+  delete query['limit'];
+
+  Record.find(query)
+      .sort({_id:-1})
+      .skip(page*limit)
+      .limit(limit)
+      .populate('user')
+      .exec(function (err, data) {
+        if(err)next(err);
+        res.jsonp({
+          status:1,mess:'ok',
+          data:data
+        })
+      })
+});
+
 
 module.exports = router;

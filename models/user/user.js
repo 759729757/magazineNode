@@ -17,7 +17,7 @@ var userSchema = new mongoose.Schema({
 
 //    其他信息
     vipLevel:{type:Number,default: 0},//会员等级，0是没有，1是普通会员，2高级会员~
-
+    allRecharge:{type:Number,default:0},//总共充值金额
 
 });
 
