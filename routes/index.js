@@ -3,6 +3,7 @@ var router = express.Router();
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');  //用来生成token
 var mongoose = require('mongoose');
+var Common = require('../controller/common');
 
 let jsonParser = bodyParser.json();
 
@@ -100,12 +101,46 @@ router.get('/*',jsonParser,(req,res,next)=>{
   })
 });
 //购买杂志 前端确认支付后，生成该书阅读码返回前端
-router.get('/purchase',function (req, res) {
+router.get('/purchase',function (req, res,next) {
    var query = req.query
-       ,magazine = query.magazine
-       ,user = query.userInfo._id
-       ,;
+       ,magazine = query.magazine //杂志的信息，包括id那些
+       ,user = query.userInfo._id //用户id
+       ,readCode = Common.getRandomCode(8)//生成8位阅读码
+       ,tradeId = Common.getTradeNum();//生成订单号（时间戳+随机数）
+  //创建新订单
+  Record.create(
+      {
+        buyer:user,magazine:magazine._id,magazineInfo:magazine,tradePride:query.pride,tradeNum:tradeNum
+        tradeTime:new Date().valueOf(),tradeId:tradeId,readCode:readCode
+      },
+      function (err, data) {
+        if(err)next(err);
+        //返回订阅码
+        res.json({status:1,mess:'ok',readCode:readCode})
+      }
+  )
+});
+//阅读杂志
+router.get('/readMgz',function (req, res, next) {
+  var query = req.query
+      ,magazine = query.magazine
+      ,user = query.userInfo._id
+      ,readCode = query.readCode;
+  var _query = {};
 
+  _query.magazine = magazine;
+  if(readCode){
+    _query.readCode = readCode;
+  }else{
+    _query.user = user;
+  }
+
+  Record.find(_query).sort({readCodeUsed:-1}).exec(function (err, data) {
+    if(err)next(err);
+    if(data.length){
+
+    }
+  })
 });
 
 
