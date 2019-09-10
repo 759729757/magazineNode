@@ -123,11 +123,12 @@ router.get('/purchase',function (req, res,next) {
 //阅读杂志
 router.get('/readMgz',function (req, res, next) {
   var query = req.query
-      ,magazine = query.magazine
+      ,magazine = query.magazine._id
       ,user = query.userInfo._id
       ,readCode = query.readCode;
   var _query = {};
 
+  if(!magazine)res({status:40001,mess:'lack of info'});
   _query.magazine = magazine;
   if(readCode){
     _query.readCode = readCode;
