@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');  //用来生成token
 var mongoose = require('mongoose');
 var multer = require('multer');
+var fs = require('fs');
 
 require('../models/user/user');
 require('../models/magazine/magazine');
@@ -57,7 +58,19 @@ router.get('/*',jsonParser,(req,res)=>{
 var urlProducts = './public/images/magazines/';
 var storageProductions = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, urlProducts + req.magazineNum + '/');    // 保存的路径，备注：需要自己创建
+    var magazineNum = req.get('magazineNum');
+    var path = urlProducts +  magazineNum + '/';
+    //检查目录，不存在则新建目录文件夹
+    fs.exists( path,function(exists){
+      if(!exists){
+        console.log("创建新文件夹",magazineNum);
+        fs.mkdir(path,function(err){
+          cb(null,path );
+        });
+      }else {
+        cb(null,path );
+      }
+    });
   },
   filename: function (req, file, cb) {
     // 将保存文件名设置为 学号 + 时间戳，比如 学生学号-1478521468943
@@ -79,7 +92,9 @@ var storageProductions = multer.diskStorage({
 var uploadProductions = multer({ storage:storageProductions });
 //--------------上传图片
 router.post('/magazineImg',function (req, res, next) {
-  if(!req.magazineNum){//上传图片必须带有参数magazineNum 否则不予上传
+var magazineNum = req.get('magazineNum');
+  console.log('magazineNum',magazineNum);
+  if(!magazineNum){//上传图片必须带有参数magazineNum 否则不予上传
     res.jsonp({
       status:'40001',
       mess:'lack magazine id'
@@ -91,6 +106,7 @@ router.post('/magazineImg',function (req, res, next) {
 });
 router.post('/magazineImg', uploadProductions.single('fileName'), function (req, res, next) {
   //接收并保存图片
+  console.log('开始保存照片')
   next();
 });
 router.post('/magazineImg', function (req, res, next) {

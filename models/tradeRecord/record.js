@@ -26,10 +26,10 @@ var recordSchema = new mongoose.Schema({
 });
 recordSchema.methods ={
     //使用阅读吗阅读了
-    used: function (magazine, readCode,cb) {
+    useRecord: function (magazine, readCode,user,cb) {
         return this
             .findOneAndUpdate(
-                {magazine:magazine,readCode:readCode},{$inc:{readCodeUsed:1}}
+                {magazine:magazine,readCode:readCode},{$inc:{readCodeUsed:1},$push:{ user: user }}
             ).exec(cb)
     }
 };

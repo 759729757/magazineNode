@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/routes/admin.js" line="149" />
+    <bookmark url="file://$PROJECT_DIR$/routes/admin.js" line="165" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3428fe84-abfa-4f55-9717-445a50805e9e" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/magazine/magazine.js" beforeDir="false" afterPath="$PROJECT_DIR$/models/magazine/magazine.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/tradeRecord/record.js" beforeDir="false" afterPath="$PROJECT_DIR$/models/tradeRecord/record.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/admin.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/admin.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/routes/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/index.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
@@ -20,20 +24,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/routes/index.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="153">
-              <caret line="113" column="72" selection-start-line="113" selection-start-column="72" selection-end-line="113" selection-end-column="72" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/controller/common.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="400">
-              <caret line="16" column="19" selection-start-line="16" selection-start-column="8" selection-end-line="16" selection-end-column="19" />
+            <state relative-caret-position="391">
+              <caret line="116" column="25" selection-start-line="116" selection-start-column="25" selection-end-line="116" selection-end-column="25" />
             </state>
           </provider>
         </entry>
@@ -42,8 +37,8 @@
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="FIRST">
-              <first_editor relative-caret-position="1000">
-                <caret line="40" column="9" selection-start-line="40" selection-start-column="4" selection-end-line="40" selection-end-column="9" />
+              <first_editor relative-caret-position="475">
+                <caret line="25" column="31" selection-start-line="25" selection-start-column="20" selection-end-line="25" selection-end-column="31" />
               </first_editor>
               <second_editor />
             </state>
@@ -53,8 +48,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/models/admin/admin.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="550">
-              <caret line="22" lean-forward="true" selection-start-line="22" selection-end-line="22" />
+            <state relative-caret-position="418">
+              <caret line="22" selection-start-line="22" selection-end-line="22" />
             </state>
           </provider>
         </entry>
@@ -62,8 +57,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/routes/admin.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="200">
-              <caret line="8" column="39" selection-start-line="8" selection-start-column="39" selection-end-line="8" selection-end-column="39" />
+            <state relative-caret-position="1089">
+              <caret line="178" column="34" selection-start-line="178" selection-start-column="34" selection-end-line="178" selection-end-column="34" />
             </state>
           </provider>
         </entry>
@@ -72,19 +67,17 @@
         <entry file="file://$PROJECT_DIR$/node_modules/multer/README.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="2250">
-                <caret line="90" column="32" selection-start-line="90" selection-start-column="32" selection-end-line="90" selection-end-column="32" />
-              </first_editor>
+              <first_editor />
               <second_editor />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/models/magazine/magazine.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
-              <caret line="15" column="8" selection-start-line="15" selection-start-column="4" selection-end-line="15" selection-end-column="8" />
+            <state relative-caret-position="228">
+              <caret line="12" column="12" selection-start-line="12" selection-start-column="4" selection-end-line="12" selection-end-column="12" />
             </state>
           </provider>
         </entry>
@@ -92,17 +85,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/models/tradeRecord/record.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="225">
-              <caret line="9" column="8" selection-start-line="9" selection-start-column="4" selection-end-line="9" selection-end-column="8" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/user/user.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="350">
-              <caret line="14" column="10" selection-start-line="14" selection-start-column="4" selection-end-line="14" selection-end-column="10" />
+            <state relative-caret-position="608">
+              <caret line="32" column="22" selection-start-line="32" selection-start-column="22" selection-end-line="32" selection-end-column="22" />
             </state>
           </provider>
         </entry>
@@ -110,8 +94,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="875">
-              <caret line="35" column="39" selection-start-line="35" selection-start-column="39" selection-end-line="35" selection-end-column="39" />
+            <state relative-caret-position="475">
+              <caret line="25" column="56" selection-start-line="25" selection-start-column="56" selection-end-line="25" selection-end-column="56" />
             </state>
           </provider>
         </entry>
@@ -142,14 +126,14 @@
         <option value="$PROJECT_DIR$/models/admin/admin.js" />
         <option value="$PROJECT_DIR$/public/test.html" />
         <option value="$PROJECT_DIR$/routes/users.js" />
-        <option value="$PROJECT_DIR$/models/magazine/magazine.js" />
-        <option value="$PROJECT_DIR$/app.js" />
         <option value="$PROJECT_DIR$/models/user/user.js" />
-        <option value="$PROJECT_DIR$/routes/admin.js" />
         <option value="$PROJECT_DIR$/controller/common.js" />
         <option value="$PROJECT_DIR$/models/tradeRecord/record.js" />
-        <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/models/magazine/magazine.js" />
         <option value="$PROJECT_DIR$/routes/index.js" />
+        <option value="$PROJECT_DIR$/app.js" />
+        <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/routes/admin.js" />
       </list>
     </option>
   </component>
@@ -163,11 +147,11 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="1">
-    <option name="x" value="378" />
-    <option name="y" value="353" />
-    <option name="width" value="1671" />
-    <option name="height" value="1201" />
+  <component name="ProjectFrameBounds">
+    <option name="x" value="733" />
+    <option name="y" value="38" />
+    <option name="width" value="1110" />
+    <option name="height" value="1026" />
   </component>
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
@@ -189,6 +173,11 @@
               <item name="magazineNode" type="b2602c69:ProjectViewProjectNode" />
               <item name="magazineNode" type="462c0819:PsiDirectoryNode" />
               <item name="bin" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="magazineNode" type="b2602c69:ProjectViewProjectNode" />
+              <item name="magazineNode" type="462c0819:PsiDirectoryNode" />
+              <item name="controller" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="magazineNode" type="b2602c69:ProjectViewProjectNode" />
@@ -228,7 +217,22 @@
               <item name="magazineNode" type="b2602c69:ProjectViewProjectNode" />
               <item name="magazineNode" type="462c0819:PsiDirectoryNode" />
               <item name="public" type="462c0819:PsiDirectoryNode" />
-              <item name="stylesheets" type="462c0819:PsiDirectoryNode" />
+              <item name="images" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="magazineNode" type="b2602c69:ProjectViewProjectNode" />
+              <item name="magazineNode" type="462c0819:PsiDirectoryNode" />
+              <item name="public" type="462c0819:PsiDirectoryNode" />
+              <item name="images" type="462c0819:PsiDirectoryNode" />
+              <item name="magazines" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="magazineNode" type="b2602c69:ProjectViewProjectNode" />
+              <item name="magazineNode" type="462c0819:PsiDirectoryNode" />
+              <item name="public" type="462c0819:PsiDirectoryNode" />
+              <item name="images" type="462c0819:PsiDirectoryNode" />
+              <item name="magazines" type="462c0819:PsiDirectoryNode" />
+              <item name="1568132627056" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="magazineNode" type="b2602c69:ProjectViewProjectNode" />
@@ -243,6 +247,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
@@ -290,17 +295,18 @@
       <workItem from="1566808960635" duration="35540000" />
       <workItem from="1567397164846" duration="16139000" />
       <workItem from="1567566412166" duration="597000" />
+      <workItem from="1568118925118" duration="10428000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="58587000" />
+    <option name="totallyTimeSpent" value="69015000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="378" y="353" width="1671" height="1201" extended-state="1" />
+    <frame x="313" y="111" width="1110" height="1026" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.13288426" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2863806" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="npm" order="2" side_tool="true" />
       <window_info id="Favorites" order="3" side_tool="true" />
@@ -375,79 +381,92 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/routes/index.js">
+    <entry file="file://$PROJECT_DIR$/controller/common.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="113" column="72" selection-start-line="113" selection-start-column="72" selection-end-line="113" selection-end-column="72" />
+        <state relative-caret-position="304">
+          <caret line="16" column="19" selection-start-line="16" selection-start-column="8" selection-end-line="16" selection-end-column="19" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/controller/common.js">
+    <entry file="file://$PROJECT_DIR$/models/user/user.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="400">
-          <caret line="16" column="19" selection-start-line="16" selection-start-column="8" selection-end-line="16" selection-end-column="19" />
+        <state relative-caret-position="266">
+          <caret line="14" column="10" selection-start-line="14" selection-start-column="4" selection-end-line="14" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/models/tradeRecord/record.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="608">
+          <caret line="32" column="22" selection-start-line="32" selection-start-column="22" selection-end-line="32" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="475">
+          <caret line="25" column="56" selection-start-line="25" selection-start-column="56" selection-end-line="25" selection-end-column="56" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="FIRST">
-          <first_editor relative-caret-position="1000">
-            <caret line="40" column="9" selection-start-line="40" selection-start-column="4" selection-end-line="40" selection-end-column="9" />
+          <first_editor relative-caret-position="475">
+            <caret line="25" column="31" selection-start-line="25" selection-start-column="20" selection-end-line="25" selection-end-column="31" />
           </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/images/magazines/test/2-jpg-1568128813683.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/images/magazines/test/1-jpg-1568129455351.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/images/magazines/test/6-jpg-1568128828498.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/multer/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor />
           <second_editor />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/models/admin/admin.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="550">
-          <caret line="22" lean-forward="true" selection-start-line="22" selection-end-line="22" />
+        <state relative-caret-position="418">
+          <caret line="22" selection-start-line="22" selection-end-line="22" />
         </state>
       </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/routes/index.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="391">
+          <caret line="116" column="25" selection-start-line="116" selection-start-column="25" selection-end-line="116" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/images/magazines/232323232/2-jpg-1568131004536.jpg">
+      <provider selected="true" editor-type-id="images" />
     </entry>
     <entry file="file://$PROJECT_DIR$/routes/admin.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
-          <caret line="8" column="39" selection-start-line="8" selection-start-column="39" selection-end-line="8" selection-end-column="39" />
+        <state relative-caret-position="1089">
+          <caret line="178" column="34" selection-start-line="178" selection-start-column="34" selection-end-line="178" selection-end-column="34" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/node_modules/multer/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="2250">
-            <caret line="90" column="32" selection-start-line="90" selection-start-column="32" selection-end-line="90" selection-end-column="32" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
+    <entry file="file://$PROJECT_DIR$/public/images/magazines/1568132627056/2-jpg-1568132629740.jpg">
+      <provider selected="true" editor-type-id="images" />
     </entry>
     <entry file="file://$PROJECT_DIR$/models/magazine/magazine.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="15" column="8" selection-start-line="15" selection-start-column="4" selection-end-line="15" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/models/tradeRecord/record.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="9" column="8" selection-start-line="9" selection-start-column="4" selection-end-line="9" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/models/user/user.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="350">
-          <caret line="14" column="10" selection-start-line="14" selection-start-column="4" selection-end-line="14" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="875">
-          <caret line="35" column="39" selection-start-line="35" selection-start-column="39" selection-end-line="35" selection-end-column="39" />
+        <state relative-caret-position="228">
+          <caret line="12" column="12" selection-start-line="12" selection-start-column="4" selection-end-line="12" selection-end-column="12" />
         </state>
       </provider>
     </entry>

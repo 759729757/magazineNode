@@ -67,12 +67,12 @@ router.post('/login',jsonParser,(req,res)=>{
         expiresIn: 60*60*1  // 1小时过期
       });
       if (pass != data[0].pass){
-        res.json({status:2,mess:'密码错误'});
+        res.jsonp({status:2,mess:'密码错误'});
         return false;
       }
-      res.json({status:1,mess:'ok',token:token})
+      res.jsonp({status:1,mess:'ok',token:token})
     } else {
-      res.json({status:401,mess:'账户不存在'});
+      res.jsonp({status:401,mess:'账户不存在'});
     }
   });
 });
@@ -83,7 +83,7 @@ router.get('/testlogin',jsonParser,(req,res)=>{
   let token = jwt.sign(content, secretOrPrivateKey, {
     expiresIn: 60*60*1  // 1小时过期
   });
-  res.json({status:1,mess:'ok',token:token,user_name:req.body.name})
+  res.jsonp({status:1,mess:'ok',token:token,user_name:req.body.name})
 });
 
 
@@ -110,13 +110,13 @@ router.get('/purchase',function (req, res,next) {
   //创建新订单
   Record.create(
       {
-        buyer:user,magazine:magazine._id,magazineInfo:magazine,tradePride:query.pride,tradeNum:tradeNum
+        buyer:user,magazine:magazine._id,magazineInfo:magazine,tradePride:query.pride,tradeNum:tradeNum,
         tradeTime:new Date().valueOf(),tradeId:tradeId,readCode:readCode
       },
       function (err, data) {
         if(err)next(err);
         //返回订阅码
-        res.json({status:1,mess:'ok',readCode:readCode})
+        res.jsonp({status:1,mess:'ok',readCode:readCode})
       }
   )
 });
@@ -133,16 +133,36 @@ router.get('/readMgz',function (req, res, next) {
   if(readCode){
     _query.readCode = readCode;
   }else{
-    _query.user = user;
+    _query.buyer = user;
   }
 
-  Record.find(_query).sort({readCodeUsed:-1}).exec(function (err, data) {
+  Record.findOne(_query).sort({readCodeUsed:-1}).populate('magazine').exec(function (err, data) {
     if(err)next(err);
-    if(data.length){
-
+    if(data){
+    // 找到阅读吗了,表示可以用户购买了这本书或者拥有阅读吗
+      if(data.user.indexOf(user) != -1){
+      //  用户读过这本书（用户id在阅读吗使用过的数组中）
+        res.jsonp({
+          status:1,mess:'ok',magazine:data.magazine
+        })
+      }else {
+        //记录用户阅读历史，然后把杂志信息返回前端
+        Record.useRecord(magazine,data.readCode,user,function (err, data) {
+          if(err)next(err);
+          Magazine.findOne({_id:magazine},function (err, data) {
+            if(err)next(err);
+            res.jsonp({
+              status:1,mess:'ok',magazine:data
+            })
+          })
+        })
+      }
     }
   })
 });
+
+
+
 
 
 
