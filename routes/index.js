@@ -20,7 +20,7 @@ var Magazine = mongoose.model('magazine');
 router.get('/getRecommend',function (req, res, next) {
   var limit =  6;//推荐的数量
 
-  Magazine.find()
+  Magazine.find({},{magazine:-1})
       .sort({rank:-1,_id:-1})
       .limit(limit)
       .exec(function (err, data) {
@@ -41,7 +41,7 @@ router.get('/getMagazine',function (req, res, next) {
   delete query['page'];
   delete query['limit'];
 
-  Magazine.find(query)
+  Magazine.find(query,{magazine:-1})
       .sort({_id:-1})
       .skip(page*limit)
       .limit(limit)
@@ -163,24 +163,24 @@ router.get('/readMgz',function (req, res, next) {
 
 
 
+// //每次切换都去调用此接口 用来判断token是否失效 或者过期
+// router.get('/checkUser',jsonParser,(req,res,next)=>{
+//   // let token = req.get("Authorization"); // 从Authorization中获取token
+//   var token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoi6ZmI6aKWIiwidGVzdCI6IiAgdmFyIHRva2VuID0gZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnVZVzFsSWpvaTZabUk2YUtXSWl3aWRHVnpkQ0k2TVRJek1USXpMQ0pwWVhRaU9qRTFOalk0TURrMU9ESXNJbVY0Y0NJNk1UVTJOamd4TXpFNE1uMC5ZaGdiNWFUS1pYVlVHc2E4RUo0WlpISWhfM0lEZHVMOWk3NE9zczRHbXNjIiwiaWF0IjoxNTY3MTUyMzg5LCJleHAiOjE1NjcxNTU5ODl9.owHIc6QBgj2Wfb8qv0zoJOeUDtQncf53Ej62Hgv-1Yw'
+//   let secretOrPrivateKey="jwt"; // 这是加密的key（密钥）
+//   jwt.verify(token, secretOrPrivateKey, (err, decode)=> {
+//     if (err) {  //  时间失效的时候 || 伪造的token
+//       res.send({'status':10010});
+//     } else {
+//       console.log(decode);
+//       req.query.token = decode;
+//       res.send({'status':10000,'decode':decode});
+//     }
+//   })
+// });
 
 
 
 
-//每次切换都去调用此接口 用来判断token是否失效 或者过期
-router.get('/checkUser',jsonParser,(req,res,next)=>{
-  // let token = req.get("Authorization"); // 从Authorization中获取token
-  var token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoi6ZmI6aKWIiwidGVzdCI6IiAgdmFyIHRva2VuID0gZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnVZVzFsSWpvaTZabUk2YUtXSWl3aWRHVnpkQ0k2TVRJek1USXpMQ0pwWVhRaU9qRTFOalk0TURrMU9ESXNJbVY0Y0NJNk1UVTJOamd4TXpFNE1uMC5ZaGdiNWFUS1pYVlVHc2E4RUo0WlpISWhfM0lEZHVMOWk3NE9zczRHbXNjIiwiaWF0IjoxNTY3MTUyMzg5LCJleHAiOjE1NjcxNTU5ODl9.owHIc6QBgj2Wfb8qv0zoJOeUDtQncf53Ej62Hgv-1Yw'
-  let secretOrPrivateKey="jwt"; // 这是加密的key（密钥）
-  jwt.verify(token, secretOrPrivateKey, (err, decode)=> {
-    if (err) {  //  时间失效的时候 || 伪造的token
-      res.send({'status':10010});
-    } else {
-      console.log(decode);
-      req.query.token = decode;
-      res.send({'status':10000,'decode':decode});
-    }
-  })
-});
 
 module.exports = router;

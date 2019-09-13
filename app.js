@@ -4,6 +4,9 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const cors = require('cors');
+var mongoose = require('mongoose');
+// var session = require('express-session');
+// var mongoStore = require('connect-mongo')(session);
 
 var indexRouter = require('./routes/index');
 var admin = require('./routes/admin');
@@ -12,6 +15,16 @@ var usersRouter = require('./routes/users');
 global.toeknKey = 'magazine';//token加密的秘钥
 
 var app = express();
+
+var dbUrl = 'mongodb://localhost:27017/magazine';
+mongoose.connect(dbUrl,{ useNewUrlParser: true },function (err) {
+  if(err){
+    console.log('error',err)
+  }
+});
+mongoose.connection.on('open',function (err) {
+  console.log('lecture db connect success! ');
+});
 
 app.use(cors());//允许跨域
 

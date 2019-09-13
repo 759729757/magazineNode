@@ -18,7 +18,6 @@ var Magazine = mongoose.model('magazine');
 
 let jsonParser = bodyParser.json();
 
-
 //登录接口
 router.post('/login',jsonParser,(req,res)=>{
   let name = req.body.name;
@@ -97,7 +96,7 @@ var magazineNum = req.get('magazineNum');
   if(!magazineNum){//上传图片必须带有参数magazineNum 否则不予上传
     res.jsonp({
       status:'40001',
-      mess:'lack magazine id'
+      mess:'lack magazines id'
     });
     return false;
   }else {
@@ -119,6 +118,29 @@ router.post('/magazineImg', function (req, res, next) {
   });
 });
 //-----------------------------上传内容图片部分end
+
+//上传杂志
+router.post('/magazine',function (req,res,next) {
+  var body = req.body;
+  console.log('magazine',body);
+  try {
+    Magazine.create(body,function (err, doc) {
+      if(err) {
+        console.log(err)
+        next(err);
+      }
+      res.jsonp({
+        status:1,
+        mess:'ok',
+        data:doc
+      })
+    })
+  }catch (e) {
+    console.log(e)
+  }
+
+});
+
 
 //分页获取当前杂志，包括筛选
 router.get('/getMagazine',function (req, res, next) {

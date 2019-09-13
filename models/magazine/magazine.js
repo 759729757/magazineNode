@@ -6,8 +6,9 @@ var mongoose = require('mongoose');
 var magazineSchema = new mongoose.Schema({
     name:String,
     subTitle:String,//副标题
-    describe:String,//描述
-    headImg:String,//封面图片
+    describe:String,//述描
+    headImg:String,//封面图片(并到 subHeadImg 中，这个不用）
+
     type:[String],//类型,可多个
     subHeadImg:[String],//详情页的封面图，可以多张
     magazine:[String],//内容图片链接，多张
