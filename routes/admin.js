@@ -8,6 +8,7 @@ var fs = require('fs');
 
 require('../models/user/user');
 require('../models/magazine/magazine');
+require('../models/magazine/mgzType');
 require('../models/tradeRecord/record');
 require('../models/admin/admin');
 
@@ -15,6 +16,7 @@ var Admin = mongoose.model('admin');
 var Record = mongoose.model('record');
 var User = mongoose.model('user');
 var Magazine = mongoose.model('magazine');
+var MgzType = mongoose.model('mgzType');
 
 let jsonParser = bodyParser.json();
 
@@ -206,6 +208,48 @@ router.get('/getRecord',function (req, res, next) {
         })
       })
 });
+
+//杂志类型相关
+router.post('/getMgzType',function (req, res, next) {
+  var query = req.body;
+  var page = query.page || 1,
+      limit = query.limit || 10;
+
+  delete query['page'];
+  delete query['limit'];
+  MgzType.find(query)
+      .sort({_id:-1,rank:-1})
+      .skip(page*limit)
+      .limit(limit)
+      .exec(function (err, data) {
+        if(err)next(err);
+        res.jsonp({
+          status:1,mess:'ok',
+          data:data
+        })
+      })
+});
+router.get('/editMgzType',function (req, res, next) {
+  var query = req.query;
+
+  MgzType.findOneAndUpdate({_id:query._id},{name:query.name,rank:query.rank},function (err, data) {
+    if(err)next(err);
+    res.jsonp({
+      status:1,mess:'ok'
+    })
+  })
+});
+router.get('/delMgzType',function (req, res, next) {
+  var query = req.query;
+
+  MgzType.remove({_id:query._id},function (err, data) {
+    if(err)next(err);
+    res.jsonp({
+      status:1,mess:'ok'
+    })
+  })
+});
+//杂志类型结束
 
 
 module.exports = router;
