@@ -121,6 +121,7 @@ router.post('/magazineImg', function (req, res, next) {
 });
 //-----------------------------上传内容图片部分end
 
+//----------------------------杂志相关----------------------------
 //上传杂志
 router.post('/magazine',function (req,res,next) {
   var body = req.body;
@@ -140,11 +141,8 @@ router.post('/magazine',function (req,res,next) {
   }catch (e) {
     console.log(e)
   }
-
 });
-
-
-//分页获取当前杂志，包括筛选
+//分页获取杂志，包括筛选
 router.get('/getMagazine',function (req, res, next) {
   var query = req.query;
   var page = query.page || 1,
@@ -165,6 +163,43 @@ router.get('/getMagazine',function (req, res, next) {
         })
       })
 });
+router.get('/editMagazine',function (req, res, next) {
+  var query = req.query;
+  Magazine.findOneAndUpdate({_id:query._id},
+      {
+        name:query.name,
+        subTitle:query.subTitle,//副标题
+        describe:query.describe,//述描
+        type:query.type,//类型,可多个
+        subHeadImg:query.subHeadImg,//详情页的封面图，可以多张
+        magazine:query.magazine,//内容图片链接，多张
+        sold:query.sold,//销售数量
+        price:query.price,//定价
+        rank:query.rank,//排序权重 ，越高越靠前，默认是0 （可用作首页显示）
+        putAway:query.putAway//是否上架
+      },
+      function (err, data) {
+    if(err)next(err);
+    res.jsonp({
+      status:1,mess:'ok'
+    })
+  })
+});
+router.get('/delMagazine',function (req, res, next) {
+  var query = req.query;
+
+  Magazine.remove({_id:query._id},function (err, data) {
+    if(err)next(err);
+    res.jsonp({
+      status:1,mess:'ok'
+    })
+  })
+});
+
+//----------------------------杂志相关 end ----------------------------
+
+
+
 //分页获取 用户信息
 router.get('/getUser',function (req, res, next) {
   var query = req.query;
@@ -209,8 +244,27 @@ router.get('/getRecord',function (req, res, next) {
       })
 });
 
-//杂志类型相关
-router.post('/getMgzType',function (req, res, next) {
+////----------------------杂志类型相关----------------------
+router.post('/addMgzType',function (req,res,next) {
+  var body = req.body;
+  console.log('MgzType',body);
+  try {
+    MgzType.create(body,function (err, doc) {
+      if(err) {
+        console.log(err)
+        next(err);
+      }
+      res.jsonp({
+        status:1,
+        mess:'ok',
+        data:doc
+      })
+    })
+  }catch (e) {
+    console.log(e)
+  }
+});
+router.get('/getMgzType',function (req, res, next) {
   var query = req.body;
   var page = query.page || 1,
       limit = query.limit || 10;
@@ -249,7 +303,7 @@ router.get('/delMgzType',function (req, res, next) {
     })
   })
 });
-//杂志类型结束
+//----------------------杂志类型结束--------------------------------------------
 
 
 module.exports = router;
