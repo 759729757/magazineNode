@@ -87,19 +87,19 @@ router.get('/testlogin',jsonParser,(req,res)=>{
 });
 
 
-//后面的每次操作 用来判断token是否失效 或者过期
-router.get('/*',jsonParser,(req,res,next)=>{
-  let token = req.get("Authorization"); // 从Authorization中获取token
-  let secretOrPrivateKey = global.toeknKey; // 这是加密的key（密钥）
-  jwt.verify(token, secretOrPrivateKey, (err, decode)=> {
-    if (err) {  //  时间失效的时候 || 伪造的token
-      res.send({'status':10010,mess:"invalid token!"});
-    } else {
-      req.query.userInfo = decode;//记录解析出来的数据
-      next();
-    }
-  })
-});
+// //后面的每次操作 用来判断token是否失效 或者过期
+// router.get('/*',jsonParser,(req,res,next)=>{
+//   let token = req.get("Authorization"); // 从Authorization中获取token
+//   let secretOrPrivateKey = global.toeknKey; // 这是加密的key（密钥）
+//   jwt.verify(token, secretOrPrivateKey, (err, decode)=> {
+//     if (err) {  //  时间失效的时候 || 伪造的token
+//       res.send({'status':10010,mess:"invalid token!"});
+//     } else {
+//       req.query.userInfo = decode;//记录解析出来的数据
+//       next();
+//     }
+//   })
+// });
 //购买杂志 前端确认支付后，生成该书阅读码返回前端
 router.get('/purchase',function (req, res,next) {
    var query = req.query

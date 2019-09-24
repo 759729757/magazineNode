@@ -43,18 +43,18 @@ router.post('/login',jsonParser,(req,res)=>{
   });
 });
 
-//后面的每次操作 用来判断token是否失效 或者过期
-router.get('/*',jsonParser,(req,res)=>{
-  let token = req.get("Authorization"); // 从Authorization中获取token
-  let secretOrPrivateKey = global.toeknKey; // 这是加密的key（密钥）
-  jwt.verify(token, secretOrPrivateKey, (err, decode)=> {
-    if (err) {  //  时间失效的时候 || 伪造的token
-      res.send({'status':10010,mess:"invalid token!"});
-    } else {
-      next();
-    }
-  })
-});
+// //后面的每次操作 用来判断token是否失效 或者过期
+// router.get('/*',jsonParser,(req,res)=>{
+//   let token = req.get("Authorization"); // 从Authorization中获取token
+//   let secretOrPrivateKey = global.toeknKey; // 这是加密的key（密钥）
+//   jwt.verify(token, secretOrPrivateKey, (err, decode)=> {
+//     if (err) {  //  时间失效的时候 || 伪造的token
+//       res.send({'status':10010,mess:"invalid token!"});
+//     } else {
+//       next();
+//     }
+//   })
+// });
 //-----------------------------上传图片部分
 var urlProducts = './public/images/magazines/';
 var storageProductions = multer.diskStorage({
@@ -145,9 +145,10 @@ router.post('/magazine',function (req,res,next) {
 //分页获取杂志，包括筛选
 router.get('/getMagazine',function (req, res, next) {
   var query = req.query;
+  console.log(req.path,'的参数：',req.query)
   var page = query.page || 1,
       limit = query.limit || 10;
-
+  page --;
   delete query['page'];
   delete query['limit'];
 
@@ -159,12 +160,13 @@ router.get('/getMagazine',function (req, res, next) {
         if(err)next(err);
         res.jsonp({
           status:1,mess:'ok',
-          data:data
+          magazine:data
         })
       })
 });
 router.get('/editMagazine',function (req, res, next) {
   var query = req.query;
+  console.log(req.path,'的参数：',req.query)
   Magazine.findOneAndUpdate({_id:query._id},
       {
         name:query.name,
@@ -186,6 +188,7 @@ router.get('/editMagazine',function (req, res, next) {
   })
 });
 router.get('/delMagazine',function (req, res, next) {
+  console.log(req.path,'的参数：',req.query)
   var query = req.query;
 
   Magazine.remove({_id:query._id},function (err, data) {
@@ -205,7 +208,7 @@ router.get('/getUser',function (req, res, next) {
   var query = req.query;
   var page = query.page || 1,
       limit = query.limit || 10;
-
+  page --;
   delete query['page'];
   delete query['limit'];
 
@@ -229,6 +232,7 @@ router.get('/getRecord',function (req, res, next) {
 
   delete query['page'];
   delete query['limit'];
+  page --;
 
   Record.find(query)
       .sort({_id:-1})
@@ -268,6 +272,7 @@ router.get('/getMgzType',function (req, res, next) {
   var query = req.body;
   var page = query.page || 1,
       limit = query.limit || 10;
+  page --;
 
   delete query['page'];
   delete query['limit'];
