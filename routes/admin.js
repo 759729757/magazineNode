@@ -96,6 +96,7 @@ router.post('/magazineImg',function (req, res, next) {
 var magazineNum = req.get('magazineNum');
   console.log('magazineNum',magazineNum);
   if(!magazineNum){//上传图片必须带有参数magazineNum 否则不予上传
+    res.status(401);
     res.jsonp({
       status:'40001',
       mess:'lack magazines id'
@@ -153,7 +154,7 @@ router.get('/getMagazine',function (req, res, next) {
   delete query['limit'];
 
   Magazine.find(query)
-      .sort({_id:-1})
+      .sort({rank:-1})
       .skip(page*limit)
       .limit(limit)
       .exec(function (err, data) {
@@ -171,7 +172,7 @@ router.get('/editMagazine',function (req, res, next) {
       {
         name:query.name,
         subTitle:query.subTitle,//副标题
-        describe:query.describe,//述描
+        describe:query.describe,//述描;
         type:query.type,//类型,可多个
         subHeadImg:query.subHeadImg,//详情页的封面图，可以多张
         magazine:query.magazine,//内容图片链接，多张
@@ -191,7 +192,7 @@ router.get('/delMagazine',function (req, res, next) {
   console.log(req.path,'的参数：',req.query)
   var query = req.query;
 
-  Magazine.remove({_id:query._id},function (err, data) {
+  Magazine.deleteOne({_id:query._id},function (err, data) {
     if(err)next(err);
     res.jsonp({
       status:1,mess:'ok'
@@ -277,7 +278,7 @@ router.get('/getMgzType',function (req, res, next) {
   delete query['page'];
   delete query['limit'];
   MgzType.find(query)
-      .sort({_id:-1,rank:-1})
+      .sort({rank:-1})
       .skip(page*limit)
       .limit(limit)
       .exec(function (err, data) {
@@ -293,15 +294,19 @@ router.get('/editMgzType',function (req, res, next) {
 
   MgzType.findOneAndUpdate({_id:query._id},{name:query.name,rank:query.rank},function (err, data) {
     if(err)next(err);
-    res.jsonp({
-      status:1,mess:'ok'
+    console.log(data.name,'修改的东西');
+    Magazine.updateMany({type:data.name},{$set:{"type.$":query.name}},function (err, up) {
+      if(err)next(err);
+      res.jsonp({
+        status:1,mess:'ok'
+      })
     })
   })
 });
 router.get('/delMgzType',function (req, res, next) {
   var query = req.query;
 
-  MgzType.remove({_id:query._id},function (err, data) {
+  MgzType.deleteOne({_id:query._id},function (err, data) {
     if(err)next(err);
     res.jsonp({
       status:1,mess:'ok'
