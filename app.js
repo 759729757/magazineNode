@@ -12,7 +12,7 @@ var indexRouter = require('./routes/index');
 var admin = require('./routes/admin');
 var usersRouter = require('./routes/users');
 
-global.toeknKey = 'magazine';//token加密的秘钥
+global.tokenKey = 'magazine';//token加密的秘钥
 
 var app = express();
 

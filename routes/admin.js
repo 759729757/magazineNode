@@ -20,41 +20,53 @@ var MgzType = mongoose.model('mgzType');
 
 let jsonParser = bodyParser.json();
 
+// new Admin({
+//   userName:'admin',password:'123456'
+// }).save();
+
 //登录接口
 router.post('/login',jsonParser,(req,res)=>{
-  let name = req.body.name;
-  let pass = req.body.pass;
-  Admin.find({name:name}).exec((err,data)=>{
+  let name = req.body.username;
+  let pass = req.body.password;
+  console.log('login',name,+pass);
+  Admin.find({userName:name}).exec((err,data)=>{
     if (err) throw err;
     if (data.length!=0){
-      let content ={name:req.body.name}; // 要生成token的主题信息
-      let secretOrPrivateKey = global.toeknKey;// 这是加密的key（密钥）
+      let content ={name:req.body.username}; // 要生成token的主题信息
+      let secretOrPrivateKey = global.tokenKey;// 这是加密的key（密钥）
       let token = jwt.sign(content, secretOrPrivateKey, {
-        expiresIn: 60*60*1  // 1小时过期
+        expiresIn: 60*60*24  // 24小时过期
       });
-      if (pass != data[0].pass){
+      if (pass != data[0].password){
+        console.log('密码错误');
         res.json({status:2,mess:'密码错误'});
         return false;
       }
+      console.log('登录成功');
       res.json({status:1,mess:'ok',token:token})
     } else {
+      console.log('账户不存在');
       res.json({status:401,mess:'账户不存在'});
     }
   });
 });
 
-// //后面的每次操作 用来判断token是否失效 或者过期
-// router.get('/*',jsonParser,(req,res)=>{
-//   let token = req.get("Authorization"); // 从Authorization中获取token
-//   let secretOrPrivateKey = global.toeknKey; // 这是加密的key（密钥）
-//   jwt.verify(token, secretOrPrivateKey, (err, decode)=> {
-//     if (err) {  //  时间失效的时候 || 伪造的token
-//       res.send({'status':10010,mess:"invalid token!"});
-//     } else {
-//       next();
-//     }
-//   })
-// });
+//后面的每次操作 用来判断token是否失效 或者过期
+router.get('/*',jsonParser,(req,res,next)=>{
+  let token = req.get("Authorization"); // 从Authorization中获取token
+  console.log('token',token);
+  let secretOrPrivateKey = global.tokenKey; // 这是加密的key（密钥）
+  jwt.verify(token, secretOrPrivateKey, (err, decode)=> {
+    if (err) {  //  时间失效的时候 || 伪造的token
+      console.log('token 无效');
+      res.send({'status':10010,mess:"invalid token!"});
+    } else {
+      console.log(decode);
+      next();
+    }
+  })
+});
+
 //-----------------------------上传图片部分
 var urlProducts = './public/images/magazines/';
 var storageProductions = multer.diskStorage({
