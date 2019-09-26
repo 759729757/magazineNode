@@ -16,12 +16,28 @@ var User = mongoose.model('user');
 var Magazine = mongoose.model('magazine');
 
 
+//获取banner杂志
+router.get('/getBanner',function (req, res, next) {
+  var limit =  5;//推荐的数量
+
+  Magazine.find({putAway:true},{magazine:-1})
+      .sort({rank:-1})
+      .limit(limit)
+      .exec(function (err, data) {
+        if(err)next(err);
+        res.jsonp({
+          status:1,mess:'ok',
+          data:data
+        })
+      })
+});
+
 //分页获取推荐杂志
 router.get('/getRecommend',function (req, res, next) {
   var limit =  6;//推荐的数量
 
-  Magazine.find({},{magazine:-1})
-      .sort({rank:-1,_id:-1})
+  Magazine.find({putAway:true},{magazine:-1})
+      .sort({rank:-1})
       .limit(limit)
       .exec(function (err, data) {
         if(err)next(err);
