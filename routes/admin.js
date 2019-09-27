@@ -59,6 +59,7 @@ router.get('/*',jsonParser,(req,res,next)=>{
   jwt.verify(token, secretOrPrivateKey, (err, decode)=> {
     if (err) {  //  时间失效的时候 || 伪造的token
       console.log('token 无效');
+      // res.status(401);
       res.send({'status':10010,mess:"invalid token!"});
     } else {
       console.log(decode);
@@ -215,7 +216,7 @@ router.get('/delMagazine',function (req, res, next) {
 //----------------------------杂志相关 end ----------------------------
 
 
-
+//---------------------------------------用户相关================================
 //分页获取 用户信息
 router.get('/getUser',function (req, res, next) {
   var query = req.query;
@@ -237,6 +238,25 @@ router.get('/getUser',function (req, res, next) {
         })
       })
 });
+router.get('/editUser',function (req, res, next) {
+  var query = req.query;
+  console.log(req.path,'的参数：',req.query)
+  User.findOneAndUpdate({_id:query._id},
+      {
+        vipLevel:query.vipLevel,//会员等级，0是没有，1是普通会员，2高级会员~
+        allRecharge:query.allRecharge,//总共充值金额
+      },
+      function (err, data) {
+        if(err)next(err);
+        res.jsonp({
+          status:1,mess:'ok'
+        })
+      })
+});
+
+//---------------------------------------用户相关 end================================
+
+
 //分页获取 交易记录
 router.get('/getRecord',function (req, res, next) {
   var query = req.query;
@@ -251,7 +271,7 @@ router.get('/getRecord',function (req, res, next) {
       .sort({_id:-1})
       .skip(page*limit)
       .limit(limit)
-      .populate('user')
+      .populate('buyer')
       .exec(function (err, data) {
         if(err)next(err);
         res.jsonp({
