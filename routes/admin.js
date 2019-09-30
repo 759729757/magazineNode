@@ -54,7 +54,7 @@ router.post('/login',jsonParser,(req,res)=>{
 //后面的每次操作 用来判断token是否失效 或者过期
 router.get('/*',jsonParser,(req,res,next)=>{
   let token = req.get("Authorization"); // 从Authorization中获取token
-  console.log('token',token);
+  // console.log('token',token);
   let secretOrPrivateKey = global.tokenKey; // 这是加密的key（密钥）
   jwt.verify(token, secretOrPrivateKey, (err, decode)=> {
     if (err) {  //  时间失效的时候 || 伪造的token
@@ -62,7 +62,7 @@ router.get('/*',jsonParser,(req,res,next)=>{
       // res.status(401);
       res.send({'status':10010,mess:"invalid token!"});
     } else {
-      console.log(decode);
+      // console.log(decode);
       next();
     }
   })
