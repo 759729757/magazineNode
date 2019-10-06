@@ -178,9 +178,9 @@ router.get('/getMagazine',function (req, res, next) {
         })
       })
 });
-router.get('/editMagazine',function (req, res, next) {
-  var query = req.query;
-  console.log(req.path,'的参数：',req.query)
+router.post('/editMagazine',function (req, res, next) {
+  var query = req.body;
+  console.log(req.path,'的参数：',query)
   Magazine.findOneAndUpdate({_id:query._id},
       {
         name:query.name,
@@ -225,13 +225,14 @@ router.get('/getUser',function (req, res, next) {
   page --;
   delete query['page'];
   delete query['limit'];
-
+  console.log(query,'query');
   User.find(query)
       .sort({_id:-1})
       .skip(page*limit)
       .limit(limit)
       .exec(function (err, data) {
         if(err)next(err);
+        console.log('getUser',data);
         res.jsonp({
           status:1,mess:'ok',
           data:data

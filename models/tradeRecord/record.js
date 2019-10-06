@@ -14,7 +14,7 @@ var recordSchema = new mongoose.Schema({
         name:String,headImg:String
     },
 
-    tradePride:Number,//交易金额
+    tradePrice:Number,//交易金额
     tradeCount:{type:Number,default:1},//交易数量（买的杂志的数量，默认1
     tradeTime:{type:String},//产生交易的时间 存入时间戳，要用的时候再进行转换
     tradeId:String// 订单编号
@@ -24,7 +24,7 @@ var recordSchema = new mongoose.Schema({
 
 
 });
-recordSchema.methods ={
+recordSchema.statics = {
     //使用阅读吗阅读了
     useRecord: function (magazine, readCode,user,cb) {
         return this
