@@ -145,7 +145,7 @@ router.get('/testlogin',jsonParser,(req,res)=>{
 router.get('/purchase',function (req, res,next) {
   try {
       var query = req.query
-          ,magazine = query.magazine //杂志的信息，包括id那些
+          ,magazine = query.magazine //杂志的id那些
           ,user = query.userInfo._id //用户id
           ,readCode = Common.getRandomCode(8)//生成8位阅读码
           ,tradeId = Common.getTradeNum();//生成订单号（时间戳+随机数）
@@ -163,7 +163,8 @@ router.get('/purchase',function (req, res,next) {
           function (err, data) {
               if(err)next(err);
               //返回订阅码
-              res.jsonp({status:1,mess:'ok',readCode:readCode})
+          Magazine.findOneAndUpdate({_id:magazine},{$inc:{sold:query.tradeCount}},function (err, doc) {}); // 增加销量
+            res.jsonp({status:1,mess:'ok',readCode:readCode})
           }
       )
 
@@ -232,6 +233,40 @@ router.get('/readMgz',function (req, res, next) {
 
 });
 
+//人员相关
+router.get('/userInfo',function (req, res, next) {
+  var user =req.query.userInfo;
+  User.findOne({_id:user._id},function (err, user) {
+    if(err)next(err);
+    res.jsonp({
+      status:1,mess:'ok',user:user
+    })
+  })
+});
+//查询已购信息
+router.get('/userBuy',function (req, res, next) {
+  var userId = req.query.userInfo;
+  Record.find({buyer:userId})
+      .populate('magazine')
+      .exec(function (err,data) {
+        if(err)next(err);
+        res.jsonp({
+          status:1,mess:'ok',data:data
+        })
+      })
+});
+//查询用过的阅读码
+router.get('/userRecord',function (req, res, next) {
+  var userId = req.query.userInfo;
+  Record.find({user:userId})
+      .populate('magazine')
+      .exec(function (err,data) {
+        if(err)next(err);
+        res.jsonp({
+          status:1,mess:'ok',data:data
+        })
+      })
+});
 
 
 // //每次切换都去调用此接口 用来判断token是否失效 或者过期
