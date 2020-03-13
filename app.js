@@ -7,6 +7,16 @@ const cors = require('cors');
 var mongoose = require('mongoose');
 // var session = require('express-session');
 // var mongoStore = require('connect-mongo')(session);
+const easyMonitor = require('easy-monitor');
+easyMonitor('Planet杂志');
+// const nmProfiler = require('nmProfiler-master');//引入监控程序
+// nmProfiler({
+//   project_name: '编程侠', // 你项目名称
+//   embrace: {
+//     tcp_host: '127.0.0.1', // Node-Monitor部署的地址
+//     tcp_port: 30000  // Node-Monitor tcp服务的端口
+//   }
+// })
 
 var indexRouter = require('./routes/index');
 var admin = require('./routes/admin');
@@ -21,6 +31,7 @@ mongoose.connect(dbUrl,{ useNewUrlParser: true },function (err) {
   if(err){
     console.log('error',err)
   }
+  console.log('--------------------------链接数据库成功-----------------------')
 });
 mongoose.connection.on('open',function (err) {
   console.log('lecture db connect success! ');
@@ -38,8 +49,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/client', indexRouter);
 app.use('/admin', admin);
-app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler

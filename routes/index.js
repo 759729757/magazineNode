@@ -18,8 +18,6 @@ var Magazine = mongoose.model('magazine');
 var MgzType = mongoose.model('mgzType');
 
 
-
-
 //获取banner杂志
 router.get('/getBanner',function (req, res, next) {
   var limit =  5;//推荐的数量
@@ -28,7 +26,8 @@ router.get('/getBanner',function (req, res, next) {
       .limit(limit)
       .exec(function (err, data) {
         if(err)next(err);
-        res.jsonp({
+          console.log('banner',data);
+          res.jsonp({
           status:1,mess:'ok',
           data:data
         })
@@ -94,6 +93,24 @@ router.get('/getMagazine',function (req, res, next) {
         })
       })
 });
+//获取杂志的购买排行榜
+router.get('/rankingList',function (req, res, next) {
+    var magazine = req.query.magazine;
+    Record.aggregate(
+        [
+            {$match:{magazine:mongoose.Types.ObjectId(magazine)}},
+            {$group : { _id : "$buyer", buyNum : {$sum :"$tradeCount"}}},
+            {$sort:{buyNum:-1}}
+        ])
+        .lookup( { from: 'users', localField:'_id', foreignField:'_id', as:'user' } )
+        .exec(function (err,doc) {
+            // console.log(doc[0])
+            res.jsonp({
+                status:1,mess:'ok',
+                data:doc
+            })
+        });
+});
 
 //登录接口  需要修改成微信登陆的 openid相关的接口~！！
 router.post('/login',jsonParser,(req,res)=>{
@@ -113,13 +130,34 @@ router.post('/login',jsonParser,(req,res)=>{
       //}
       res.jsonp({status:1,mess:'ok',token:token})
     } else {
-      res.jsonp({status:401,mess:'账户不存在'});
+      //  新用户
+        User.create(
+            {
+                nickName:'测试账号',//微信昵称
+                headImg:'http://5b0988e595225.cdn.sohucs.com/images/20170724/ad28da0d658b43aba84ce91df9cacdad.jpeg',//微信头像
+                province:'广东省',//省份
+                city:'广州市',
+                telephone:'13826272634',
+                gender:'男',//性别
+
+                //重要信息
+                openId:openId,
+
+            },
+            function (err, doc) {
+                let content ={name:doc.nickName,_id:doc._id}; // 要生成token的主题信息
+                let secretOrPrivateKey = global.tokenKey;// 这是加密的key（密钥）
+                let token = jwt.sign(content, secretOrPrivateKey, {
+                    expiresIn: 60*60*24  // 过期时间（秒）
+                });
+            res.jsonp({status:1,token:token,mess:'新建账号'});
+        });
     }
   });
 });
 // //登录接口
 router.get('/testlogin',jsonParser,(req,res)=>{
-  let content ={name:'陈颖',test:'  var token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoi6ZmI6aKWIiwidGVzdCI6MTIzMTIzLCJpYXQiOjE1NjY4MDk1ODIsImV4cCI6MTU2NjgxMzE4Mn0.Yhgb5aTKZXVUGsa8EJ4ZZHIh_3IDduL9i74Oss4Gmsc'}; // 要生成token的主题信息
+  let content ={name:'测试账号',test:'  var token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoi6ZmI6aKWIiwidGVzdCI6MTIzMTIzLCJpYXQiOjE1NjY4MDk1ODIsImV4cCI6MTU2NjgxMzE4Mn0.Yhgb5aTKZXVUGsa8EJ4ZZHIh_3IDduL9i74Oss4Gmsc'}; // 要生成token的主题信息
   let secretOrPrivateKey="jwt";// 这是加密的key（密钥）
   let token = jwt.sign(content, secretOrPrivateKey, {
     expiresIn: 60*60*1  // 1小时过期
@@ -196,35 +234,49 @@ router.get('/readMgz',function (req, res, next) {
     _query.buyer = user;
   }
       console.log(_query,'_query');
-      Record.findOne(_query).sort({readCodeUsed:-1}).populate('magazine').exec(function (err, data) {
+      Record.find(_query).sort({readCodeUsed:-1}).populate('magazine').exec(function (err, records) {
     if(err)next(err);
-    if(data){
-        console.log('找到阅读数据',data.name);
+    if(records.length){
+        console.log('找到阅读数据',records);
         // 找到阅读吗了,表示可以用户购买了这本书或者拥有阅读吗
-      if(data.user.indexOf(user) != -1){
-      //  用户读过这本书（用户id在阅读吗使用过的数组中）
-            res.jsonp({
-              status:1,mess:'ok',magazine:data.magazine
-            });
-          return false;
-      }else {
-        //记录用户阅读历史，然后把杂志信息返回前端
-        Record.useRecord(magazine,data.readCode,user,function (err, data) {
-          if(err)next(err);
-          Magazine.findOne({_id:magazine},function (err, data) {
-            if(err)next(err);
-            res.jsonp({
-              status:1,mess:'ok',magazine:data
-            })
-          })
-        })
-      }
+        for(var i=0;i<records.length;i++){
+
+            var data=records[i];
+            if(data.user.indexOf(user) != -1){
+                //  用户读过这本书（用户id在阅读吗使用过的数组中）
+                res.jsonp({
+                    status:1,mess:'ok',magazine:data.magazine
+                });
+                return false;
+            }else {
+                if(data.tradeCount > data.readCodeUsed){
+                    //记录用户阅读历史，然后把杂志信息返回前端
+                    Record.useRecord(magazine,data.readCode,user,function (err, data) {
+                        if(err)next(err);
+                        Magazine.findOne({_id:magazine},function (err, data) {
+                            if(err)next(err);
+                            res.jsonp({
+                                status:1,mess:'ok',magazine:data
+                            })
+                        })
+                    })
+                }
+                if( i >= records.length-1 ){
+                    //无效阅读吗
+                    res.jsonp({
+                        status:40100,mess:'lack purchase'
+                    });
+                    return
+                }
+
+            }
+
+        }
     }else {
     //    还没购买
         res.jsonp({
             status:40100,mess:'lack purchase'
         })
-
     }
   })
   }catch (e){
@@ -245,48 +297,30 @@ router.get('/userInfo',function (req, res, next) {
 });
 //查询已购信息
 router.get('/userBuy',function (req, res, next) {
-  var userId = req.query.userInfo;
+  var userId = req.query.userInfo._id;
   Record.find({buyer:userId})
       .populate('magazine')
       .exec(function (err,data) {
         if(err)next(err);
-        res.jsonp({
+          console.log('userBuy',userId);
+          res.jsonp({
           status:1,mess:'ok',data:data
         })
       })
 });
-//查询用过的阅读码
+
 router.get('/userRecord',function (req, res, next) {
-  var userId = req.query.userInfo;
-  Record.find({user:userId})
+  var userId = req.query.userInfo._id;
+  Record.find({buyer:userId})
       .populate('magazine')
       .exec(function (err,data) {
         if(err)next(err);
-        res.jsonp({
+          console.log('userRecord',data);
+          res.jsonp({
           status:1,mess:'ok',data:data
         })
       })
 });
-
-
-// //每次切换都去调用此接口 用来判断token是否失效 或者过期
-// router.get('/checkUser',jsonParser,(req,res,next)=>{
-//   // let token = req.get("Authorization"); // 从Authorization中获取token
-//   var token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoi6ZmI6aKWIiwidGVzdCI6IiAgdmFyIHRva2VuID0gZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnVZVzFsSWpvaTZabUk2YUtXSWl3aWRHVnpkQ0k2TVRJek1USXpMQ0pwWVhRaU9qRTFOalk0TURrMU9ESXNJbVY0Y0NJNk1UVTJOamd4TXpFNE1uMC5ZaGdiNWFUS1pYVlVHc2E4RUo0WlpISWhfM0lEZHVMOWk3NE9zczRHbXNjIiwiaWF0IjoxNTY3MTUyMzg5LCJleHAiOjE1NjcxNTU5ODl9.owHIc6QBgj2Wfb8qv0zoJOeUDtQncf53Ej62Hgv-1Yw'
-//   let secretOrPrivateKey="jwt"; // 这是加密的key（密钥）
-//   jwt.verify(token, secretOrPrivateKey, (err, decode)=> {
-//     if (err) {  //  时间失效的时候 || 伪造的token
-//       res.send({'status':10010});
-//     } else {
-//       console.log(decode);
-//       req.query.token = decode;
-//       res.send({'status':10000,'decode':decode});
-//     }
-//   })
-// });
-
-
-
 
 
 module.exports = router;
