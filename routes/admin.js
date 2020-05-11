@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');  //用来生成token
 var mongoose = require('mongoose');
 var multer = require('multer');
 var fs = require('fs');
+var Common = require('../controller/common');
 
 require('../models/user/user');
 require('../models/magazine/magazine');
@@ -29,15 +30,15 @@ router.post('/login',jsonParser,(req,res)=>{
   let name = req.body.username;
   let pass = req.body.password;
   console.log('login',name,+pass);
-  Admin.find({userName:name}).exec((err,data)=>{
+  Admin.findOne({userName:name}).exec((err,data)=>{
     if (err) throw err;
-    if (data.length!=0){
-      let content ={name:req.body.username}; // 要生成token的主题信息
+    if (data){
+      let content ={name:req.body.username,_id:data._id}; // 要生成token的主题信息
       let secretOrPrivateKey = global.tokenKey;// 这是加密的key（密钥）
       let token = jwt.sign(content, secretOrPrivateKey, {
         expiresIn: 60*60*24  // 24小时过期
       });
-      if (pass != data[0].password){
+      if (pass != data.password){
         console.log('密码错误');
         res.json({status:2,mess:'密码错误'});
         return false;
@@ -62,6 +63,7 @@ router.get('/*',jsonParser,(req,res,next)=>{
       // res.status(401);
       res.send({'status':10010,mess:"invalid token!"});
     } else {
+      req.query.userInfo = decode;
       // console.log(decode);
       next();
     }
@@ -165,6 +167,7 @@ router.get('/getMagazine',function (req, res, next) {
   page --;
   delete query['page'];
   delete query['limit'];
+  delete query['userInfo'];
 
   Magazine.find(query)
       .sort({rank:-1})
@@ -180,7 +183,6 @@ router.get('/getMagazine',function (req, res, next) {
 });
 router.post('/editMagazine',function (req, res, next) {
   var query = req.body;
-  console.log(req.path,'的参数：',query)
   Magazine.findOneAndUpdate({_id:query._id},
       {
         name:query.name,
@@ -189,10 +191,12 @@ router.post('/editMagazine',function (req, res, next) {
         type:query.type,//类型,可多个
         subHeadImg:query.subHeadImg,//详情页的封面图，可以多张
         magazine:query.magazine,//内容图片链接，多张
+        subMagazine:query.subMagazine,//内容图片链接，多张
         sold:query.sold,//销售数量
         price:query.price,//定价
         rank:query.rank,//排序权重 ，越高越靠前，默认是0 （可用作首页显示）
-        putAway:query.putAway//是否上架
+        putAway:query.putAway,//是否上架
+        fullUrl:query.fullUrl//是否上架
       },
       function (err, data) {
     if(err)next(err);
@@ -225,19 +229,22 @@ router.get('/getUser',function (req, res, next) {
   page --;
   delete query['page'];
   delete query['limit'];
-  console.log(query,'query');
-  User.find(query)
-      .sort({_id:-1})
-      .skip(page*limit)
-      .limit(limit)
-      .exec(function (err, data) {
-        if(err)next(err);
-        console.log('getUser',data);
-        res.jsonp({
-          status:1,mess:'ok',
-          data:data
+  delete query['userInfo'];
+  User.count(query,function (err, amount) {
+    User.find(query)
+        .sort({_id:-1})
+        .skip(page*limit)
+        .limit(limit)
+        .exec(function (err, data) {
+          if(err)next(err);
+          res.jsonp({
+            status:1,mess:'ok',
+            data:data,
+            amount:amount
+          })
         })
-      })
+  });
+
 });
 router.get('/editUser',function (req, res, next) {
   var query = req.query;
@@ -263,23 +270,36 @@ router.get('/getRecord',function (req, res, next) {
   var query = req.query;
   var page = query.page || 1,
       limit = query.limit || 10;
-
   delete query['page'];
   delete query['limit'];
+  delete query['userInfo'];
+
   page --;
 
-  Record.find(query)
-      .sort({_id:-1})
-      .skip(page*limit)
-      .limit(limit)
-      .populate('buyer')
-      .exec(function (err, data) {
-        if(err)next(err);
-        res.jsonp({
-          status:1,mess:'ok',
-          data:data
+  Record.count(query,function (err, amount) {
+    Record.find(query)
+        .sort({_id:-1})
+        .skip(page*limit)
+        .limit(limit)
+        .populate('buyer magazine')
+        .exec(function (err, data) {
+          if(err)next(err);
+          res.jsonp({
+            status:1,mess:'ok',
+            data:data,
+            total:amount
+          })
         })
-      })
+  })
+});
+//删除购买记录
+router.get('/delRecord',function (req, res, next) {
+  Record.remove({_id:req.query.record,isPay:{$ne:true}},function (err, doc) {
+    console.log('del record',doc);
+    res.jsonp({
+      status:1,mess:'ok'
+    })
+  })
 });
 
 ////----------------------杂志类型相关----------------------
@@ -310,6 +330,8 @@ router.get('/getMgzType',function (req, res, next) {
 
   delete query['page'];
   delete query['limit'];
+  delete query['userInfo'];
+
   MgzType.find(query)
       .sort({rank:-1})
       .skip(page*limit)
@@ -347,6 +369,84 @@ router.get('/delMgzType',function (req, res, next) {
   })
 });
 //----------------------杂志类型结束--------------------------------------------
+
+//设置阅读码
+router.get('/makeReadCode',function (req, res, next) {
+  var query = req.query
+    ,readCode = Common.getRandomCode(10); //生成8位阅读码
+  Record.create(
+      {
+        coupon:true,
+        magazine:query.magazine,
+        amount:0,
+        tradeId:'管理员创建',
+        readCode:readCode,
+        tradePrice:0,
+        tradeCount:query.tradeCount,
+        tradeTime:new Date().valueOf(),
+        isPay:true,
+      },
+      function (err, data) {
+        if(err)next(err);
+        res.json({ status: 1, readCode: readCode });
+      }
+  );
+});
+//阅读码支付状态调整
+router.get('/readCodePay',function (req,res,next){
+  if(!req.query.tradeId){
+    res.json({ status: 0,mess:'lack'});
+    return false
+  }
+  Record.findOneAndUpdate(
+      {tradeId:req.query.tradeId},
+      {
+        isPay:true
+      },
+      function (err, data) {
+        if(err)next(err);
+        //返回订阅码
+        res.jsonp({
+          mess:req.query.tradeId+'修改完成'
+        })
+      }
+  );
+});
+//重置阅读码 （主要针对付款有问题的用户）
+router.get('/initCode',function (req,res,next){
+  if(!req.query.tradeId){
+    res.json({ status: 0,mess:'lack'});
+    return false
+  }
+  Record.findOneAndUpdate(
+      {tradeId:req.query.tradeId},
+      {
+        user:[],readCodeUsed:0,
+      },
+      function (err, data) {
+        if(err)next(err);
+        //返回订阅码
+        res.jsonp({
+          mess:req.query.tradeId+'重置完成'
+        })
+      }
+  );
+});
+//管理员相关
+router.get('/getManager',function (req, res, next) {
+  Admin.findById(req.query.userInfo._id,function (err, doc) {
+    if(err)next(err);
+    res.json({ status: 1, data: doc });
+  })
+});
+router.get('/editManager',function (req, res, next) {
+  Admin.findOneAndUpdate({_id:req.query.userInfo._id},
+  { password: req.query.password}
+  ,function (err, doc) {
+    if(err)next(err);
+    res.json({ status: 1,mess:'ok' });
+  })
+});
 
 
 module.exports = router;

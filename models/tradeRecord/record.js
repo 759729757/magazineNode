@@ -5,6 +5,7 @@
 var mongoose = require('mongoose');
 
 var recordSchema = new mongoose.Schema({
+    coupon:{type:Boolean,default:false},//是否是后台生成的阅读码
     buyer:{type:mongoose.Schema.Types.ObjectId,ref:'user'},//关联到用户表,购买的人
     magazine:{type:mongoose.Schema.Types.ObjectId,ref:'magazine'},//关联到杂志表
     user:[String],//关联到用户表，使用的人 存入id
@@ -17,11 +18,15 @@ var recordSchema = new mongoose.Schema({
     tradePrice:Number,//交易金额
     tradeCount:{type:Number,default:1},//交易数量（买的杂志的数量，默认1
     tradeTime:{type:String},//产生交易的时间 存入时间戳，要用的时候再进行转换
-    tradeId:String// 订单编号
-
-    ,readCode:String,//阅读码，8位数
+    tradeId:String,// 订单编号
+    readCode:String,//阅读码，8位数
     readCodeUsed:{type:Number,default: 0},//阅读吗被使用的数量，默认0 ，不得超过交易数量 tradeCount
 
+    isPay:{type:Boolean,default:false},//订单支付状态
+    amount:String,//实付款总价
+    out_trade_no:String,//订单号
+    transaction_id:String,//微信支付凭证单号
+    openid:String,//付款用户的openid
 
 });
 recordSchema.statics = {

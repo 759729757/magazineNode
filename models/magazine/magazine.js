@@ -12,9 +12,28 @@ var magazineSchema = new mongoose.Schema({
     type:[String],//类型,可多个
     subHeadImg:[String],//详情页的封面图，可以多张
     magazine:[{
-        url:String,//默认 内容（图片，视频）的链接，默认是 1:2 的全面屏手机
-        subUrl:String,//兼容传统手机屏幕的图片 比例 9:16
         type:{type:String,default:'image'},//默认类型是图片
+        url:String,//默认 内容（图片，视频）的链接，默认是 1:2 的全面屏手机
+        subUrl:String,// 就是未达标时展示的图片
+        subUrl2:String,//备用
+        fullUrl:String,//完整的http链接
+        videoDirection:'',
+        videoShowOfSold:'',
+        showControls:{type:Boolean,default:false},//是否显示视频控制条
+        autoFull:{type:Boolean,default:false},//是否自动全屏
+
+    }],
+    subMagazine:[{ //兼容旧版手机
+        type:{type:String,default:'image'},//默认类型是图片
+        url:String,//默认 内容（图片，视频）的链接，默认是 1:2 的全面屏手机
+        subUrl:String,// 就是未达标时展示的图片
+        subUrl2:String,//备用
+        fullUrl:String,//完整的http链接
+
+        videoDirection:'',
+        videoShowOfSold:'',
+        showControls:{type:Boolean,default:false},//是否显示视频控制条
+        autoFull:{type:Boolean,default:false},//是否自动全屏
 
     }],
     sold:Number,//销售数量
