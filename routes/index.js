@@ -395,7 +395,6 @@ router.get('/readMgz',function (req, res, next) {
             ,readCode = query.readCode;
         var _query = {};
 
-
         if(!magazine){
             res.jsonp({status:40001,mess:'lack of info'});
             return false;
