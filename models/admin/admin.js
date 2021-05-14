@@ -7,7 +7,7 @@ var adminSchema = new mongoose.Schema({
     name:{type:String,default:'管理员'},
     userName:{type:String},
     password: {type:String},
-
+    
 });
 
 adminSchema.statics={
@@ -20,5 +20,3 @@ adminSchema.statics={
 };
 
 mongoose.model('admin',adminSchema);
-
-

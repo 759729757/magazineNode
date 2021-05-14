@@ -1,4 +1,4 @@
-var createError = require('http-errors');
+﻿var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
@@ -7,6 +7,7 @@ var fs = require('fs');
 const cors = require('cors');
 var mongoose = require('mongoose');
 const bodyParser = require("body-parser");
+const wxchat = require('./utils/wechat')
 require("body-parser-xml")(bodyParser);//微信支付解析xml
 // var session = require('express-session');
 // var mongoStore = require('connect-mongo')(session);
@@ -31,6 +32,10 @@ global.appid = 'wx2ac6c463e7b2c49e'; //小程序appid
 global.appsecret = '44c7a51463adc560147fc4cb20431db9';//小程序密钥
 global.mch_id = '1587531981';//微信支付商户号
 global.mch_key = 'Planetofficialmagazinedivus09011';//微信支付商户秘钥
+global.webappid = 'wxb373346dd4ebbb8a'; //服务号appid
+global.websecret = 'fc356bf79b856d59171c3b16e43ee709';//服务号密钥 cb5ac6c53c0a90b038d323709547c622
+
+
 
 var app = express();
 //解析微信支付
@@ -99,4 +104,5 @@ app.use(function(err, req, res, next) {
   });
 });
 
+wxchat.get_wx_accesstoken();//微信自动更新accesstoken
 module.exports = app;

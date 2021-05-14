@@ -1,4 +1,4 @@
-// 微信支付功能
+﻿// 微信支付功能
 var express = require("express");
 var router = express.Router();
 var crypto = require('crypto');
@@ -57,9 +57,13 @@ router.get('/wxPurchase',function (req, res, next) {
     var reqUrl = 'https://api.mch.weixin.qq.com/pay/unifiedorder'; //向微信提交订单申请
 //签名
 //     total_fee = 1;//设置价格为1分，测试用
-
+    let appid = global.appid;
+    if (req.query.buyType === 'web') {
+        // 网页端购买
+        appid = global.webappid
+    }
     var signoption = {
-        appid: global.appid,//小程序appid
+        appid: appid,//小程序appid
         body: req.query.tradeBody||'Planet 电子刊',//商品描述
         mch_id: global.mch_id,//商户号
         nonce_str: nonce_str,//随机字符串
@@ -105,7 +109,7 @@ router.get('/wxPurchase',function (req, res, next) {
                     console.log('统一下单接口返回的解析数据：',reData);
                     let timeStamp = new Date().getTime();
 
-                    var _signtext = "appId="+global.appid+"&nonceStr=" + reData.nonce_str[0] +
+                    var _signtext = "appId="+appid+"&nonceStr=" + reData.nonce_str[0] +
                         "&package=prepay_id=" + reData.prepay_id[0] +
                         "&signType=MD5&timeStamp=" + timeStamp +
                         "&key="+global.mch_key;//商户key一定要补，顺序不要随便调整**
@@ -140,7 +144,12 @@ router.get('/wxPurchase',function (req, res, next) {
                         },
                         function (err, data) {
                             if(err)next(err);
-                            res.json({ error_code: 0, result: responseData,out_trade_no:signoption.out_trade_no });
+                            res.json({
+                                error_code: 0,
+                                result: responseData,
+                                out_trade_no:signoption.out_trade_no,
+                                readCode: readCode,
+                            });
                         }
                     );
                     //个性化业务处理结束

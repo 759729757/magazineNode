@@ -1,4 +1,4 @@
-var express = require('express');
+﻿var express = require('express');
 var router = express.Router();
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');  //用来生成token
@@ -7,6 +7,7 @@ var fs = require('fs');
 var Common = require('../controller/common');
 const https= require('https');
 require("body-parser-xml")(bodyParser);//微信支付解析xml
+var wxSign = require('../utils/sign');
 
 let jsonParser = bodyParser.json();
 
@@ -22,18 +23,33 @@ var MgzType = mongoose.model('mgzType');
 
 
 //获取banner杂志
-router.get('/getBanner',function (req, res, next) {
-    var limit =  5;//推荐的数量
+router.get('/getBanner', function (req, res, next) {
+    var limit =  10;//推荐的数量
     Magazine.find({putAway:true},{magazine:0})
         .sort({rank:-1})
-        .limit(limit)
-        .exec(function (err, data) {
+        .limit(3)
+        .exec(function (err, top1) {
             if(err)next(err);
-            res.jsonp({
-                status:1,mess:'ok',
-                data:data
-            })
-        })
+            Magazine.find({putAway:true},{magazine:0})
+                .sort({sold:-1})
+                .limit(limit)
+                .exec(function (err, top10) {
+                    var _top10 = top10.filter(item => {
+                        // return item._id !== top1[0]._id;
+                        var isNew = true;
+                        for(var i=0;i<top1.length;i++){
+                            if(item._id === top1[i]._id){
+                                isNew = false;
+                            }
+                        }
+                        return isNew;
+                    });
+                    res.jsonp({
+                        status:1,mess:'ok',
+                        data:top1.concat(_top10)
+                    })
+                });
+        });
 });
 //获取热门 top10 杂志
 router.get('/getTop',function (req, res, next) {
@@ -82,7 +98,9 @@ router.get('/getMagazine',function (req, res, next) {
     delete query['limit'];
 
     if (query.name)query.name = {'$regex': query.name};
-    query.putAway = true;
+    if(!query.putAway)query.putAway = true;
+
+
 
     Magazine.find(query,{magazine:0})
         .sort({rank:-1})
@@ -96,25 +114,68 @@ router.get('/getMagazine',function (req, res, next) {
             })
         })
 });
+
 //获取杂志的购买排行榜
 router.get('/rankingList',function (req, res, next) {
     var magazine = req.query.magazine;
     try {
-        Record.aggregate(
-            [
-                {$match:{magazine:mongoose.Types.ObjectId(magazine),isPay:true,coupon:{$ne:true}}},
-                {$group : { _id : "$buyer", buyNum : {$sum :"$tradeCount"}}},
-                {$sort:{buyNum:-1}}
-            ])
-            .limit(10)
-            .lookup( { from: 'users', localField:'_id', foreignField:'_id', as:'user' } )
-            .exec(function (err,doc) {
-                // console.log(doc[0])
-                res.jsonp({
-                    status:1,mess:'ok',
-                    data:doc
-                })
-            });
+        Magazine.findOne({_id:magazine}).exec(function (err,data) {
+
+            Record.aggregate(
+                [
+                    {$match:{magazine:mongoose.Types.ObjectId(magazine),isPay:true,coupon:{$ne:true}}},
+                    {$group : { _id : "$buyer", buyNum : {$sum :"$tradeCount"}}},
+                    {$sort:{buyNum:-1}}
+                ])
+                .limit(10)
+                .lookup( { from: 'users', localField:'_id', foreignField:'_id', as:'user' } )
+                .exec(function (err,doc) {
+                    if(data.showRankingWeek){
+                        var startTime = new Date('2021-03-06 12:00').valueOf();
+                        var endTime = new Date('2021-03-13 23:59').valueOf();
+                        try {
+                            Record.aggregate(
+                                [
+                                    {
+                                        $match:{
+                                            magazine:mongoose.Types.ObjectId(magazine),
+                                            isPay:true,
+                                            coupon:{$ne:true},
+                                            tradeTime:{$gte:String(startTime),$lte:String(endTime)}
+                                        }
+                                    },
+                                    {$group : { _id : "$buyer", buyNum : {$sum :"$tradeCount"}}},
+                                    {$sort:{buyNum:-1}}
+                                ])
+                                .limit(10)
+                                .lookup( { from: 'users', localField:'_id', foreignField:'_id', as:'user' } )
+                                .exec(function (e,doc2) {
+                                    if(new  Date().valueOf() < startTime){
+                                        doc2 = doc;
+                                    }
+                                    res.jsonp({
+                                        status:1,mess:'ok',
+                                        data:doc,
+                                        rankingListWeek:doc2,
+                                    })
+                                })
+                        }catch (e) {
+                            res.jsonp({
+                                status:1,mess:'ok',
+                                data:doc,
+                                rankingListWeek:doc,
+                            })
+                        }
+                    }else{
+                        res.jsonp({
+                            status:1,mess:'ok',
+                            data:doc
+                        })
+                    }
+
+                });
+
+        })
     }catch (e) {
         console.log('rankingList');
         res.jsonp({
@@ -122,13 +183,37 @@ router.get('/rankingList',function (req, res, next) {
             data:[]
         })
     }
-
 });
+
+router.get('/getUserInfoByWechat',function (req,res,next) {
+    var openid = req.query.openid,
+        access_token = req.query.access_token;
+
+    https.get("https://api.weixin.qq.com/sns/userinfo?access_token="+
+        access_token+"&openid="+openid+"&lang=zh_CN",
+        function (res1) {
+            res1.on('data', function (d) {
+                let userInfo = JSON.parse(d.toString());
+                console.log('用户数据', userInfo);
+                User.findOneAndUpdate({wxopenid:openid},
+                    {userInfo:userInfo,avatarUrl:userInfo.headimgurl,nickName:userInfo.nickname},function (err,doc) {
+                        if(err) res.jsonp({status: -1, mess: 'error,try again'});
+                        res.jsonp({
+                            status: 1, mess: 'ok', userInfo: userInfo
+                        })
+                    })
+            })
+        }).on('error', function (e) {
+        console.log("获取微信信息失败: " + e.message);
+        res.jsonp({status: -1, mess: 'error,try again'});
+    });
+})
 
 // 小程序id
 router.get('/loginByCode',function (req, res, next) {
     console.log('wx_appid',global.appid+'secret',global.appsecret)
     var code = req.query.code || false;
+    var state = req.query.state || false;
     if (!code){
         res.jsonp({
             status:40001,mess:'缺少必要字段'//缺了code
@@ -137,52 +222,123 @@ router.get('/loginByCode',function (req, res, next) {
     if(code){
         try {
             var x='';//wx response;
-            https.get("https://api.weixin.qq.com/sns/jscode2session?appid="
-                + global.appid+"&secret="+global.appsecret+"&js_code="+code
-                +"&grant_type=authorization_code",
-                function(res1) {
-                    res1.on('data',function(d){
-                        x = JSON.parse(d.toString());
-                        var openid = x.openid;
-                        // console.log('user info:'+ x.toString(),openid);
-                        if(openid!=undefined){
-                            //get openid success!
-                            User.findOne({openId:openid}, function (err, user) {
-                                if (err)next(err);
-                                // console.log('get wx info:',user);
-                                if(user){
-                                    let content = {openid:openid,_id:user._id}; // 要生成token的主题信息
-                                    let secretOrPrivateKey = global.tokenKey;// 这是加密的key（密钥）
-                                    let token = jwt.sign(content, secretOrPrivateKey, {
-                                        expiresIn: 60*60*4  // 4小时过期
-                                    });
-                                    res.jsonp({status:1,mess:'ok',token:token,user:user}) //返回token
-                                }else {
-                                    //首次登陆，自动注册用户
-                                    User.create({
-                                        openId:openid
-                                    },function (err, doc) {
-                                        let content = {openid:openid,_id:doc._id}; // 要生成token的主题信息
+
+            if (state === 'web') {
+                var appid = global.webappid; //公众号appid
+                var secret = global.websecret; //公众号 secret key
+                https.get("https://api.weixin.qq.com/sns/oauth2/access_token?appid="
+                    + appid + "&secret=" + secret + "&code=" + code + "&grant_type=authorization_code",
+                    function (res1) {
+                        res1.on('data', function (d) {
+                            x = JSON.parse(d.toString());
+                            var openid = x.openid,access_token = x.access_token;
+                            console.log('微信登录 用户数据', x);
+                            if (openid != undefined) {
+                                //微信服务号的openid字段为wxopenid
+                                User.findOne({wxopenid: openid}, function (err, user) {
+                                    if (err) res.jsonp({status: -1, mess: 'tyr again'});
+                                    // console.log('get wx info:',user);
+                                    if (user) {
+                                        let content = {
+                                            openid: openid,
+                                            _id: user._id,
+                                            session_key: x.session_key,
+                                            access_token: x.access_token
+                                        }; // 要生成token的主题信息
+                                        let secretOrPrivateKey = global.tokenKey;// 这是加密的key（密钥）
+                                        let token = jwt.sign(content, secretOrPrivateKey, {
+                                            expiresIn: 60 * 60 * 4  // 4小时过期
+                                        });
+                                        res.jsonp({
+                                            status: 1, mess: 'ok',
+                                            openid:openid,
+                                            access_token:access_token,
+                                            token: token,
+                                            user: user
+                                        }) //返回token
+                                    } else {
+                                        //首次登陆，自动注册用户
+                                        User.create({
+                                            wxopenid: openid, creat_date: new Date().toLocaleString()
+                                        }, function (err, doc) {
+                                            if (err) res.jsonp({status: -1, mess: 'tyr again'});
+                                            let content = {
+                                                openid: openid,
+                                                _id: doc._id,
+                                                session_key: x.session_key,
+                                                access_token: x.access_token
+                                            }; // 要生成token的主题信息
+                                            let secretOrPrivateKey = global.tokenKey;// 这是加密的key（密钥）
+                                            let token = jwt.sign(content, secretOrPrivateKey, {
+                                                expiresIn: 60 * 60 * 4  // 4小时过期
+                                            });
+                                            res.jsonp({status: 1, mess: 'register ok',openid:openid,access_token:access_token, token: token, user: doc}) //返回token
+                                        });
+                                    }
+                                });
+
+                            } else {
+                                //did not get openid;
+                                console.log("获取不到openid :" + x.errcode);
+                                res.jsonp({status: -1, mess: 'no openid'});
+                                return false;
+                            }
+                        })
+                    }).on('error', function (e) {
+                    //https get fail;
+                    console.log("微信登陆失败: " + e.message);
+                    res.redirect("login.html");
+                });
+            }else{
+                https.get("https://api.weixin.qq.com/sns/jscode2session?appid="
+                    + global.appid+"&secret="+global.appsecret+"&js_code="+code
+                    +"&grant_type=authorization_code",
+                    function(res1) {
+                        res1.on('data',function(d){
+                            x = JSON.parse(d.toString());
+                            var openid = x.openid;
+                            // console.log('user info:'+ x.toString(),openid);
+                            if(openid!=undefined){
+                                //get openid success!
+                                User.findOne({openId:openid}, function (err, user) {
+                                    if (err)next(err);
+                                    // console.log('get wx info:',user);
+                                    if(user){
+                                        let content = {openid:openid,_id:user._id}; // 要生成token的主题信息
                                         let secretOrPrivateKey = global.tokenKey;// 这是加密的key（密钥）
                                         let token = jwt.sign(content, secretOrPrivateKey, {
                                             expiresIn: 60*60*4  // 4小时过期
                                         });
-                                        res.jsonp({status:1,mess:'register ok',token:token,user:doc}) //返回token
-                                    });
-                                }
-                            });
-                        }else{
-                            //did not get openid;
-                            console.log("获取不到openid :"+ x.errcode);
-                            res.jsonp({status:-1,mess:'no openid'});
-                            return false;
-                        }
-                    })
-                }).on('error', function(e) {
-                //https get fail;
-                console.log("微信登陆失败: " + e.message);
-                res.jsonp({status:-1,mess:'error,try again'});
-            });
+                                        res.jsonp({status:1,mess:'ok',token:token,user:user}) //返回token
+                                    }else {
+                                        //首次登陆，自动注册用户
+                                        User.create({
+                                            openId:openid
+                                        },function (err, doc) {
+                                            let content = {openid:openid,_id:doc._id}; // 要生成token的主题信息
+                                            let secretOrPrivateKey = global.tokenKey;// 这是加密的key（密钥）
+                                            let token = jwt.sign(content, secretOrPrivateKey, {
+                                                expiresIn: 60*60*4  // 4小时过期
+                                            });
+                                            res.jsonp({status:1,mess:'register ok',token:token,user:doc}) //返回token
+                                        });
+                                    }
+                                });
+                            }else{
+                                //did not get openid;
+                                console.log("获取不到openid :"+ x.errcode);
+                                res.jsonp({status:-1,mess:'no openid'});
+                                return false;
+                            }
+                        })
+                    }).on('error', function(e) {
+                    //https get fail;
+                    console.log("微信登陆失败: " + e.message);
+                    res.jsonp({status:-1,mess:'error,try again'});
+                });
+            }
+
+
         }catch (e) {
             console.log(e)
         }
@@ -190,7 +346,20 @@ router.get('/loginByCode',function (req, res, next) {
     }
 });
 
-
+router.get('/wechatConfig',function (req,res,next) {
+    var url = req.query.url;
+    try {
+        if (url) {
+            console.log('wx_sign:' + wxSign(global.jsapi_ticket, url));
+            res.jsonp(wxSign(global.jsapi_ticket, url));
+        } else {
+            res.jsonp('false');
+        }
+    } catch (e) {
+        console.log('config出错：', e);
+        res.jsonp('false');
+    }
+})
 //微信回调地址
 router.post('/purchaseCallback',function (req, res, next) {
     console.log('微信支付回调：',req.body);
@@ -284,24 +453,28 @@ router.get('/userBuy',function (req, res, next) {
         })
     }
     jwt.verify(token, secretOrPrivateKey, (err, decode)=> {
-        if (err) {  //  兼容旧版
-            let userId2 = req.query.userInfo._id;
-            Record.find({buyer:mongoose.Types.ObjectId(userId2),isPay:true})
-                .populate('magazine')
-                .exec(function (err,data) {
-                    if(err)next(err);
-                    console.log('userBuy',userId2);
-                    res.jsonp({
-                        status:1,mess:'ok',data:data,userId:userId2
-                    })
-                })
+        if (err) {
+            res.jsonp({
+                status:0,mess:'请重新登录'
+            })
+        //  兼容旧版
+        //     let userId2 = req.query.userInfo._id;
+        //     Record.find({buyer:mongoose.Types.ObjectId(userId2),isPay:true})
+        //         .populate('magazine')
+        //         .exec(function (err,data) {
+        //             if(err)next(err);
+        //             console.log('userBuy',userId2);
+        //             res.jsonp({
+        //                 status:1,mess:'ok',data:data,userId:userId2
+        //             })
+        //         })
         } else {
             let userId = decode._id;
             Record.find({buyer:mongoose.Types.ObjectId(userId),isPay:true})
                 .populate('magazine')
                 .exec(function (err,data) {
                     if(err)next(err);
-                    console.log('userBuy',userId);
+                    console.log('用户购买数据:',userId);
                     res.jsonp({
                         status:1,mess:'ok',data:data,userId:userId
                     })
@@ -320,8 +493,9 @@ router.get('/userRecord',function (req, res, next) {
     jwt.verify(token, secretOrPrivateKey, (err, decode)=> {
         if (err) {  //  兼容旧版
             let userId2 = req.query.userInfo._id;
-            Record.find({ $or:[{buyer:mongoose.Types.ObjectId(userId2)},{ buyer :userId2 }],isPay:true })
-                .populate('magazine')
+            Record.find({ $or:[{buyer:mongoose.Types.ObjectId(userId2)},{ buyer :userId2 },
+                    {user:userId},{user:mongoose.Types.ObjectId(userId)}],isPay:true })
+                .populate('magazine').sort({_id:-1})
                 .exec(function (err,data) {
                     if(err)next(err);
                     // console.log('userBuy',userId2);
@@ -331,8 +505,9 @@ router.get('/userRecord',function (req, res, next) {
                 })
         } else {
             let userId = decode._id;
-            Record.find({ $or:[{buyer:mongoose.Types.ObjectId(userId)},{ buyer :userId }],isPay:true })
-                .populate('magazine')
+            Record.find({ $or:[{buyer:mongoose.Types.ObjectId(userId)},{ buyer :userId },
+                    {user:userId},{user:mongoose.Types.ObjectId(userId)}],isPay:true })
+                .populate('magazine').sort({_id:-1})
                 .exec(function (err,data) {
                     if(err)next(err);
                     // console.log('userRecord',data);
@@ -364,7 +539,7 @@ router.get('/purchase',function (req, res,next) {
                 },function (err,doc) { });
 
                 //新增杂志购买数量
-                Magazine.findOneAndUpdate({_id:magazine},{$inc:{sold:query.tradeCount}},function (err, doc) {}); // 增加销量
+                // Magazine.findOneAndUpdate({_id:magazine},{$inc:{sold:query.tradeCount}},function (err, doc) {}); // 增加销量
                 //返回订阅码
                 res.jsonp({status:1,mess:'ok',readCode:data.readCode})
             }
@@ -394,6 +569,7 @@ router.get('/readMgz',function (req, res, next) {
             ,user = query.userInfo._id
             ,readCode = query.readCode;
         var _query = {};
+
 
         if(!magazine){
             res.jsonp({status:40001,mess:'lack of info'});

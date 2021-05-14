@@ -1,4 +1,4 @@
-var express = require('express');
+﻿var express = require('express');
 var router = express.Router();
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');  //用来生成token
@@ -108,7 +108,7 @@ var storageProductions = multer.diskStorage({
 var uploadProductions = multer({ storage:storageProductions });
 //--------------上传图片
 router.post('/magazineImg',function (req, res, next) {
-var magazineNum = req.get('magazineNum');
+  var magazineNum = req.get('magazineNum');
   console.log('magazineNum',magazineNum);
   if(!magazineNum){//上传图片必须带有参数magazineNum 否则不予上传
     res.status(401);
@@ -196,14 +196,15 @@ router.post('/editMagazine',function (req, res, next) {
         price:query.price,//定价
         rank:query.rank,//排序权重 ，越高越靠前，默认是0 （可用作首页显示）
         putAway:query.putAway,//是否上架
+        showRankingWeek:query.showRankingWeek,//是否上架
         fullUrl:query.fullUrl//是否上架
       },
       function (err, data) {
-    if(err)next(err);
-    res.jsonp({
-      status:1,mess:'ok'
-    })
-  })
+        if(err)next(err);
+        res.jsonp({
+          status:1,mess:'ok'
+        })
+      })
 });
 router.get('/delMagazine',function (req, res, next) {
   console.log(req.path,'的参数：',req.query)
@@ -373,7 +374,7 @@ router.get('/delMgzType',function (req, res, next) {
 //设置阅读码
 router.get('/makeReadCode',function (req, res, next) {
   var query = req.query
-    ,readCode = Common.getRandomCode(10); //生成8位阅读码
+      ,readCode = Common.getRandomCode(10); //生成8位阅读码
   Record.create(
       {
         coupon:true,
@@ -441,11 +442,11 @@ router.get('/getManager',function (req, res, next) {
 });
 router.get('/editManager',function (req, res, next) {
   Admin.findOneAndUpdate({_id:req.query.userInfo._id},
-  { password: req.query.password}
-  ,function (err, doc) {
-    if(err)next(err);
-    res.json({ status: 1,mess:'ok' });
-  })
+      { password: req.query.password}
+      ,function (err, doc) {
+        if(err)next(err);
+        res.json({ status: 1,mess:'ok' });
+      })
 });
 
 
