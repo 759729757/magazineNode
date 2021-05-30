@@ -91,7 +91,7 @@ router.get('/getMgzType',function (req, res, next) {
 router.get('/getMagazine',function (req, res, next) {
     var query = req.query;
     var page = query.page || 1,
-        limit = query.limit || 6;
+        limit = query.limit || 10;
     page--;
 
     delete query['page'];
