@@ -15,11 +15,13 @@ require('../models/user/user');
 require('../models/magazine/magazine');
 require('../models/magazine/mgzType');
 require('../models/tradeRecord/record');
+require('../models/user/address');
 
 var Record = mongoose.model('record');
 var User = mongoose.model('user');
 var Magazine = mongoose.model('magazine');
 var MgzType = mongoose.model('mgzType');
+var Address = mongoose.model('address');
 
 
 //获取banner杂志
@@ -91,7 +93,7 @@ router.get('/getMgzType',function (req, res, next) {
 router.get('/getMagazine',function (req, res, next) {
     var query = req.query;
     var page = query.page || 1,
-        limit = query.limit || 10;
+        limit = query.limit || 6;
     page--;
 
     delete query['page'];
@@ -443,6 +445,72 @@ router.post('/updateUserInfo',function (req, res,next) {
 
 });
 
+// 更新用户收货地址
+router.post('/updateUserAddress',function (req, res,next) {
+    var body = req.body;
+    var openid = body.userInfo.openid;
+    try{
+        Address.findOne({user: openid}, function(err, address){
+            if(!address){
+                Address.create(
+                    {
+                        user:openid,
+                        userName: body.userName,
+                        phoneNumber: body.phoneNumber,
+                        prov: body.prov,
+                        city: body.city,
+                        district: body.district,
+                        address:body.address
+                    },
+                    function (err, doc) {
+                        err && console.log('添加失败', err);
+                        res.jsonp({status:1,mess:'ok',data:doc})
+                    })
+    
+            }else{
+                Address.findOneAndUpdate(
+                    {user:openid},
+                    {
+                        userName: body.userName,
+                        phoneNumber: body.phoneNumber,
+                        prov: body.prov,
+                        city: body.city,
+                        district: body.district,
+                        address:body.address
+                    },
+                    {
+                        upsert: true
+                    },
+                    function (err, doc) {
+                        res.jsonp({status:1,mess:'ok',data:doc})
+                    })
+            }
+        });
+    }catch(err){
+        err && console.log('更新地址错误', err)
+        res.jsonp({
+            status:0,
+            mess:'err'
+        })
+    }
+});
+// 查询用户地址
+router.get('/userAddress', function(req, res, next){
+    try{
+        var body = req.query;
+        var openid = body.userInfo.openid;
+        Address.findOne({user: openid}, function(err, doc){
+            err && console.log('获取用户地址错误', err);
+            res.jsonp({
+                status: 1,
+                data: doc
+            })
+        })
+
+    }catch(e){
+        console.log('查询失败', e);
+    }
+})
 //查询已购信息
 router.get('/userBuy',function (req, res, next) {
     var token = req.query.token;
