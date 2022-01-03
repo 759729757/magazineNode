@@ -6,6 +6,7 @@ var xml2js = require('xml2js');
 var request = require('request');
 var mongoose = require('mongoose');
 var Common = require('../controller/common');
+var fs = require('fs');
 
 var bodyparser = require('body-parser');
 router.use(bodyparser.urlencoded({ extended: false }));
@@ -157,8 +158,20 @@ router.get('/wxPurchase',function (req, res, next) {
                 });
                 // res.json({ error_code: 0, result: responseData,out_trade_no:signoption.out_trade_no });
             } catch (e) {
-                console.log(e);
+                console.log('微信付款失败', e);
+                let timestrap = new Date().valueOf();
+                fs.writeFile('../errors/'+timestrap+'微信错误.txt',JSON.stringify(e)+'\r\n path:'+req.path, { 'flag': 'a' }, function(err) {
+                  console.log('已经记录错误数据.');
+                });
+                res.json({ error_code: 'err', result: e });
             }
+        }else{
+            console.log('微信付款失败', e);
+            let timestrap = new Date().valueOf();
+            fs.writeFile('../errors/'+timestrap+'微信错误.txt',JSON.stringify(e)+'\r\n path:'+req.path, { 'flag': 'a' }, function(err) {
+              console.log('已经记录错误数据.');
+            });
+            res.json({ error_code: 'err', result: e });
         }
     });
 });

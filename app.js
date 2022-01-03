@@ -92,9 +92,11 @@ app.use(function(err, req, res, next) {
   res.locals.message = err.message;
   let timestrap = new Date().valueOf();
   console.log('错误数据.',req.path);
-  fs.writeFile('./errors/'+timestrap+'.txt',JSON.stringify(err.message)+'\r\n path:'+req.path, { 'flag': 'a' }, function(err) {
-    console.log('已经记录错误数据.');
-  });
+  if(err.status !== 404){
+    fs.writeFile('./errors/'+timestrap+'.txt',JSON.stringify(err.message)+'\r\n path:'+req.path, { 'flag': 'a' }, function(err) {
+      console.log('已经记录错误数据.');
+    });
+  }
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
   // render the error page

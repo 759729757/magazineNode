@@ -40,6 +40,10 @@ var magazineSchema = new mongoose.Schema({
     sold:Number,//销售数量
     price:{type:Number,default:6},//定价
     rank:{type:Number,default: 0},//排序权重 ，越高越靠前，默认是0 （可用作首页显示）
+    // 跳转到微店
+    weShopUrl:{type:String,default:''},
+    weShopShownum:{type:String,default:''},// 购买达标才显示的数量
+    weShopName:{type:String,default:''},
 
     magazineNum:'',//用于记录图片文件存放路径，方便后期整理
     putAway:{type:Boolean,default:true},//是否上架

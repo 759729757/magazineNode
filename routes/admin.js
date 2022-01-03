@@ -197,6 +197,9 @@ router.post('/editMagazine',function (req, res, next) {
         rank:query.rank,//排序权重 ，越高越靠前，默认是0 （可用作首页显示）
         putAway:query.putAway,//是否上架
         showRankingWeek:query.showRankingWeek,//是否上架
+        weShopUrl:query.weShopUrl,
+        weShopShownum:query.weShopShownum,
+        weShopName:query.weShopName,
         fullUrl:query.fullUrl//是否上架
       },
       function (err, data) {
